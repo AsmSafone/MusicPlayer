@@ -146,7 +146,7 @@ async def skip_stream(song: Song, lang):
             if song.requested_by
             else song.request_msg.sender_chat.title,
         ),
-        quote=False
+        quote=False,
     )
     await infomsg.delete()
     os.remove(thumb)
@@ -194,7 +194,7 @@ async def start_stream(song: Song, lang):
             if song.requested_by
             else song.request_msg.sender_chat.title,
         ),
-        quote=False
+        quote=False,
     )
     await infomsg.delete()
     os.remove(thumb)
