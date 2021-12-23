@@ -1,0 +1,60 @@
+{
+    "name": "Music Player",
+    "description": "A Telegram Music Bot written in Python using Pyrogram and Py-Tgcalls",
+    "repository": "https://github.com/AsmSafone/MusicPlayer",
+    "logo": "https://github.com/AsmSafone/MusicPlayer/raw/main/theme/logo.png",
+    "stack": "container",
+    "keywords": [
+      "telegram",
+      "voicechat",
+      "userbot",
+      "music",
+      "player",
+      "python",
+      "pyrogram",
+      "py-tgcalls",
+      "musicplayer"
+    ],
+    "env": {
+      "API_ID": {
+        "description": "Telegram app id, get it from https://my.telegram.org/apps",
+        "required": true
+      },
+      "API_HASH": {
+        "description": "Telegram app hash, get it from https://my.telegram.org/apps",
+        "required": true
+      },
+      "SESSION": {
+        "description": "Pyrogram session string, get it from https://replit.com/@AsmSafone/genStr",
+        "required": true
+      },
+      "SUDOERS": {
+        "description": "ID of sudo users who have special access (separate multiple ids with space)",
+        "required": false
+      },
+      "PREFIX": {
+        "description": "Bot commad prefix or handler (separate multiple prefix with space)",
+        "value": "!",
+        "required": false
+      },
+      "LANGUAGE": {
+        "description": "An available bot language (read the README.md for more info)",
+        "value": "en",
+        "required": false
+      }
+    },
+    "formation": {
+      "worker": {
+        "quantity": 1,
+        "size": "free"
+      }
+    },
+    "buildpacks": [
+      {
+        "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
+      },
+      {
+        "url": "heroku/python"
+      }
+    ]
+  }

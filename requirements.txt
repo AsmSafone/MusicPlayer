@@ -1,0 +1,10 @@
+pytube
+pillow
+aiohttp
+aiofiles
+tgcrypto
+python-dotenv
+py-tgcalls==0.8.1rc1
+youtube-search-python
+git+https://github.com/pyrogram/pyrogram
+git+https://github.com/asmsafone/downloader
