@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class Config:
     def __init__(self) -> None:
         self.API_ID: str = os.environ.get("API_ID", None)
