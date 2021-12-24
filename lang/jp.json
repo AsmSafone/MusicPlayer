@@ -1,0 +1,24 @@
+{
+    "downloading": "🔄 | **処理...**",
+    "errorMessage": "❌ | **エラーが発生しました!**",
+    "invalidFile": "❌ | **無効なコマンド/ファイル!**",
+    "langSet": "🗣 | **言語を設定 `%s`!**","loopOff"： "🔂| **ミュージックループが無効になっています！**"、
+    "loopOn"： "🔂| **ミュージックループが有効になっています！**"、
+    "audioMode"： "🎧| **オーディオモードが有効になっています！**"、
+    "videoMode"： "🎥| **ビデオモードが有効になっています！**"、
+    "notFound"： "❌| **見つかりません、再試行してください！**"、
+    "notActive"： "❌| **アクティブなグループコールはありません！**"、
+    "notPlaying"： "❌| **何も再生されていません！**"、
+    "playing"： "▶️** [％s]（％s）\n⏱再生時間：`％s` \n💬再生中： `％s` \n🎧リクエスト者：％s **"、
+    "Requested By"： "⏸| **一時停止ストリーム！**"、
+    "paused： "▶️| **再開されたストリーム！**"、
+    "resumed"： "🔇| **ミュートストリーム！**"、
+    "muted"： "🔈| **ミュートされていないストリーム！**"、
+    "unmuted"： "🔈| **ミュートされていない*！"、
+    "leaveVC"： "⏹| **ビデオチャットから離れました！**"、
+    "queueEmpty"： "⏺| **キューが空です！**"、
+    "queueExported"： "✅| **％d曲がエクスポートされました！**"、
+    "queueImported"： "✅| **％d曲がインポートされました！**"、
+    "replyToAFile"： "👀| **オーディオ/ビデオに返信！**"、
+    "addedToQueue"： "➕| ** [％s]（％s）は位置％d **でキューに入れられます！"、
+    "helpText": "🤖 **Available Commands:**\n\n• <prefix>ping\n- `check if alive or not`\n\n• <prefix>repo\n- `show the bot source code`\n\n• <prefix>start | <prefix>help\n- `show the help for commands`\n\n• <prefix>mode | <prefix>switch\n- `switch the stream mode (audio/video)`\n\n• <prefix>p | <prefix>play [song name | youtube link]\n- `play a song in vc, if already playing add to queue`\n\n• <prefix>radio | <prefix>stream [radio url | stream link]\n- `play a live stream in vc, if already playing add to queue`\n\n• <prefix>pl | <prefix>playlist [youtube playlist link]\n- `play the whole youtube playlist at once`\n\n• <prefix>skip | <prefix>next\n- `skip to the next song`\n\n• <prefix>m | <prefix>mute\n- `mute the current stream`\n\n• <prefix>um | <prefix>unmute\n- `unmute the muted stream`\n\n• <prefix>ps | <prefix>pause\n- `pause the current stream`\n\n• <prefix>rs | <prefix>resume\n- `resume the paused stream`\n\n• <prefix>list | <prefix>queue\n- `show the songs in the queue`\n\n• <prefix>mix | <prefix>shuffle\n- `shuffle the queued playlist`\n\n• <prefix>loop | <prefix>repeat\n- `enable or disable the loop mode`\n\n• <prefix>lang | language [language code]\n- `set the bot language in a group`\n\n• <prefix>ip | <prefix>import\n- `import queue from exported file`\n\n• <prefix>ep | <prefix>export\n- `export the queue for import in future`\n\n• <prefix>stop | <prefix>leave\n- `leave from vc and clear the queue`\n\n© **Powered By: @AsmSafone | @AsmSupport**"
