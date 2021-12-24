@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 from core.funcs import (
     app,
     search,
+    safone,
     pytgcalls,
     extract_args,
     skip_stream,

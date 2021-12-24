@@ -41,6 +41,11 @@
         "description": "An available bot language (read the README.md for more info)",
         "value": "en",
         "required": false
+      },
+      "CUSTOM_QUALITY": {
+        "description": "An available stream quality (read the README.md for more info)",
+        "value": "high",
+        "required": false
       }
     },
     "formation": {

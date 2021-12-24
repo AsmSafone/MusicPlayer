@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 import os
 import json
+import asyncio
 from config import config
 from core.song import Song
 from pyrogram import filters
@@ -26,6 +27,7 @@ from pytgcalls.types import Update
 from core import (
     app,
     search,
+    safone,
     pytgcalls,
     set_group,
     set_title,
@@ -566,6 +568,11 @@ async def stream_end(_, update: Update, lang):
                 set_group(chat_id, now_playing=next_song)
                 await skip_stream(next_song, lang)
             else:
+                if safone.get(chat_id) is not None:
+                    try:
+                        await safone[chat_id].delete()
+                    except:
+                        pass
                 await set_title(chat_id, "", client=app)
                 set_group(chat_id, is_playing=False, now_playing=None)
                 await pytgcalls.leave_group_call(chat_id)
@@ -575,6 +582,11 @@ async def stream_end(_, update: Update, lang):
 @handle_error
 async def closed_vc(_, chat_id: int):
     if chat_id not in all_groups():
+        if safone.get(chat_id) is not None:
+            try:
+                await safone[chat_id].delete()
+            except:
+                pass
         await set_title(chat_id, "", client=app)
         set_group(chat_id, now_playing=None, is_playing=False)
         clear_queue(chat_id)
@@ -584,6 +596,11 @@ async def closed_vc(_, chat_id: int):
 @handle_error
 async def kicked_vc(_, chat_id: int):
     if chat_id not in all_groups():
+        if safone.get(chat_id) is not None:
+            try:
+                await safone[chat_id].delete()
+            except:
+                pass
         await set_title(chat_id, "", client=app)
         set_group(chat_id, now_playing=None, is_playing=False)
         clear_queue(chat_id)
@@ -593,9 +610,15 @@ async def kicked_vc(_, chat_id: int):
 @handle_error
 async def left_vc(_, chat_id: int):
     if chat_id not in all_groups():
+        if safone.get(chat_id) is not None:
+            try:
+                await safone[chat_id].delete()
+            except:
+                pass
         await set_title(chat_id, "", client=app)
         set_group(chat_id, now_playing=None, is_playing=False)
         clear_queue(chat_id)
 
 
+print("Music Player UserBot Started!")
 pytgcalls.run()
