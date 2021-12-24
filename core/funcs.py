@@ -33,7 +33,14 @@ from core.groups import get_group, set_title
 from youtubesearchpython import VideosSearch
 from typing import Optional, Union, Tuple, AsyncIterator
 from pytgcalls.types.input_stream import AudioPiped, AudioVideoPiped
-from pytgcalls.types.input_stream.quality import HighQualityAudio, HighQualityVideo, MediumQualityAudio, MediumQualityVideo, LowQualityAudio, LowQualityVideo
+from pytgcalls.types.input_stream.quality import (
+    HighQualityAudio,
+    HighQualityVideo,
+    MediumQualityAudio,
+    MediumQualityVideo,
+    LowQualityAudio,
+    LowQualityVideo,
+)
 
 
 safone = {}
@@ -103,15 +110,18 @@ def extract_args(text: str) -> str:
 def get_quality(song: Song) -> Union[AudioPiped, AudioVideoPiped]:
     group = get_group(song.request_msg.chat.id)
     if group["is_video"]:
-        if config.CUSTOM_QUALITY.lower() == 'high':
+        if config.CUSTOM_QUALITY.lower() == "high":
             return AudioVideoPiped(
                 song.remote_url, HighQualityAudio(), HighQualityVideo(), song.headers
             )
-        elif config.CUSTOM_QUALITY.lower() == 'medium':
+        elif config.CUSTOM_QUALITY.lower() == "medium":
             return AudioVideoPiped(
-                song.remote_url, MediumQualityAudio(), MediumQualityVideo(), song.headers
+                song.remote_url,
+                MediumQualityAudio(),
+                MediumQualityVideo(),
+                song.headers,
             )
-        elif config.CUSTOM_QUALITY.lower() == 'low':
+        elif config.CUSTOM_QUALITY.lower() == "low":
             return AudioVideoPiped(
                 song.remote_url, LowQualityAudio(), LowQualityVideo(), song.headers
             )
@@ -121,23 +131,15 @@ def get_quality(song: Song) -> Union[AudioPiped, AudioVideoPiped]:
                 song.remote_url, HighQualityAudio(), HighQualityVideo(), song.headers
             )
     else:
-        if config.CUSTOM_QUALITY.lower() == 'high':
-            return AudioPiped(
-                song.remote_url, HighQualityAudio(), song.headers
-            )
-        elif config.CUSTOM_QUALITY.lower() == 'medium':
-            return AudioPiped(
-                song.remote_url, MediumQualityAudio(), song.headers
-            )
-        elif config.CUSTOM_QUALITY.lower() == 'low':
-            return AudioPiped(
-                song.remote_url, LowQualityAudio(), song.headers
-            )
+        if config.CUSTOM_QUALITY.lower() == "high":
+            return AudioPiped(song.remote_url, HighQualityAudio(), song.headers)
+        elif config.CUSTOM_QUALITY.lower() == "medium":
+            return AudioPiped(song.remote_url, MediumQualityAudio(), song.headers)
+        elif config.CUSTOM_QUALITY.lower() == "low":
+            return AudioPiped(song.remote_url, LowQualityAudio(), song.headers)
         else:
             print("Invalid Quality Specified. Defaulting to High!")
-            return AudioPiped(
-                song.remote_url, HighQualityAudio(), song.headers
-            )
+            return AudioPiped(song.remote_url, HighQualityAudio(), song.headers)
 
 
 async def delete_messages(messages):
@@ -159,9 +161,9 @@ async def skip_stream(song: Song, lang):
             pass
     infomsg = await song.request_msg.reply_text(lang["downloading"])
     await pytgcalls.change_stream(
-            chat.id,
-            get_quality(song),
-        )
+        chat.id,
+        get_quality(song),
+    )
     await set_title(chat.id, song.title, client=app)
     thumb = await generate_cover(
         song.title,
@@ -196,10 +198,10 @@ async def start_stream(song: Song, lang):
             pass
     infomsg = await song.request_msg.reply_text(lang["downloading"])
     await pytgcalls.join_group_call(
-            chat.id,
-            get_quality(song),
-            stream_type=StreamType().pulse_stream,
-        )
+        chat.id,
+        get_quality(song),
+        stream_type=StreamType().pulse_stream,
+    )
     await set_title(chat.id, song.title, client=app)
     thumb = await generate_cover(
         song.title,
