@@ -18,10 +18,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 from core.funcs import (
     app,
+    ydl,
     search,
     safone,
     pytgcalls,
     extract_args,
+    check_yt_url,
     skip_stream,
     start_stream,
     generate_cover,

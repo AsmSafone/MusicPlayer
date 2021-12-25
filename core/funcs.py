@@ -26,6 +26,7 @@ from config import config
 from core.song import Song
 from pytube import Playlist
 from pyrogram import Client
+from yt_dlp import YoutubeDL
 from pyrogram.types import Message
 from pytgcalls import PyTgCalls, StreamType
 from PIL import Image, ImageDraw, ImageFont
@@ -44,6 +45,12 @@ from pytgcalls.types.input_stream.quality import (
 
 
 safone = {}
+ydl_opts = {
+        "quiet": True,
+        "geo_bypass": True,
+        "nocheckcertificate": True,
+}
+ydl = YoutubeDL(ydl_opts)
 app = Client(config.SESSION, api_id=config.API_ID, api_hash=config.API_HASH)
 pytgcalls = PyTgCalls(app)
 
@@ -186,7 +193,8 @@ async def skip_stream(song: Song, lang):
         quote=False,
     )
     await infomsg.delete()
-    os.remove(thumb)
+    if os.path.exists(thumb):
+        os.remove(thumb)
 
 
 async def start_stream(song: Song, lang):
@@ -224,7 +232,8 @@ async def start_stream(song: Song, lang):
         quote=False,
     )
     await infomsg.delete()
-    os.remove(thumb)
+    if os.path.exists(thumb):
+        os.remove(thumb)
 
 
 def changeImageSize(maxWidth, maxHeight, image):

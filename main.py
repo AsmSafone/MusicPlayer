@@ -26,6 +26,7 @@ from pyrogram.types import Message
 from pytgcalls.types import Update
 from core import (
     app,
+    ydl,
     search,
     safone,
     pytgcalls,
@@ -38,6 +39,7 @@ from core import (
     skip_stream,
     start_stream,
     extract_args,
+    check_yt_url,
     shuffle_queue,
     delete_messages,
     get_youtube_playlist,
@@ -141,6 +143,13 @@ async def live_stream(_, message: Message, lang):
     if not link:
         k = await message.reply_text(lang["notFound"])
         return await delete_messages([message, k])
+    is_yt_url, url = check_yt_url(link)
+    if is_yt_url:
+        meta = ydl.extract_info(url, download=False)
+        formats = meta.get("formats", [meta])
+        for f in formats:
+            ytstreamlink = f["url"]
+        link = ytstreamlink
     song = Song({"url": link}, message)
     check = await song.check_remote_url(song.remote_url)
     if not check:

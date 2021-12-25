@@ -96,7 +96,7 @@ Command | Description
 • !list / !queue | Show the songs in the queue
 • !mix / !shuffle | Shuflle the queued playlist
 • !loop / !repeat | Enable or disable the loop mode
-• !lang / language [language code] | Set the bot language
+• !lang / language [language code] | Set the bot language in group
 • !ip / !import | Import queue from exported file
 • !ep / !export | Export the queue for import in future
 • !stop / !leave | Leave from vc and clear the queue

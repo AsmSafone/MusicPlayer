@@ -72,6 +72,8 @@ class Song:
             video["thumbnail"], video["http_headers"]
         )
         if check_video and check_image:
+            if video["is_live"]:
+                return (False, "LIVE_STREAM_ERROR")
             self.title = self._escape(video["title"])
             self.duration = str(timedelta(seconds=video["duration"]))
             self.thumb = video["thumbnail"]
