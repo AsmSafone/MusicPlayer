@@ -46,9 +46,9 @@ from pytgcalls.types.input_stream.quality import (
 
 safone = {}
 ydl_opts = {
-        "quiet": True,
-        "geo_bypass": True,
-        "nocheckcertificate": True,
+    "quiet": True,
+    "geo_bypass": True,
+    "nocheckcertificate": True,
 }
 ydl = YoutubeDL(ydl_opts)
 app = Client(config.SESSION, api_id=config.API_ID, api_hash=config.API_HASH)
