@@ -18,6 +18,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 import os
 import re
+import sys
+import time
 import random
 import aiohttp
 import asyncio
@@ -60,6 +62,12 @@ themes = [
     "pink",
     "yellow",
 ]
+
+
+def restart():
+    os.system("git pull")
+    time.sleep(5)
+    os.execl(sys.executable, sys.executable, *sys.argv)
 
 
 def search(message: Message) -> Optional[Song]:

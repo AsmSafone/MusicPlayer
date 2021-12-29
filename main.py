@@ -17,11 +17,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 """
 
 import os
-import sys
 import json
-import asyncio
 from config import config
 from core.song import Song
+from threading import Thread
 from pyrogram import filters
 from pyrogram.types import Message
 from pytgcalls.types import Update
@@ -31,8 +30,8 @@ from pytgcalls.exceptions import GroupCallNotFound, NoActiveGroupCall
 from pytgcalls.types.stream import StreamAudioEnded, StreamVideoEnded
 from core.decorators import language, register, only_admins, handle_error
 from core import (
-    app, ydl, safone, search, get_group, get_queue, pytgcalls, set_group,
-    set_title, all_groups, clear_queue, skip_stream, check_yt_url,
+    app, ydl, safone, search, restart, get_group, get_queue, pytgcalls,
+    set_group, set_title, all_groups, clear_queue, skip_stream, check_yt_url,
     extract_args, start_stream, shuffle_queue, delete_messages,
     get_youtube_playlist)
 
@@ -58,20 +57,6 @@ async def repo(_, message: Message):
 @handle_error
 async def ping(_, message: Message):
     await message.reply_text(f"🤖 **Pong!**\n`{await pytgcalls.ping} ms`")
-
-
-@app.on_message(
-    filters.command("restart", config.PREFIXES) & ~filters.private & ~filters.edited
-)
-@language
-@only_admins
-@handle_error
-async def restart(_, message: Message, lang):
-    k = await message.reply_text(lang["restarting"])
-    os.system("git pull")
-    asyncio.sleep(10)
-    await k.edit_text(lang["restarted"])
-    os.execl(sys.executable, sys.executable, *sys.argv)
 
 
 @app.on_message(
@@ -568,6 +553,28 @@ async def import_playlist(_, message: Message, lang):
             await queue.put(_song)
     k = await message.reply_text(lang["queueImported"] % len(group["queue"]))
     await delete_messages([message, k])
+
+
+@app.on_message(
+    filters.command(["update", "restart"], config.PREFIXES)
+    & ~filters.private
+    & ~filters.edited
+)
+@language
+@only_admins
+@handle_error
+async def update_restart(_, message: Message, lang):
+    chats = all_groups()
+    stats = await message.reply_text(lang["update"])
+    for chat in chats:
+        try:
+            await pytgcalls.leave_group_call(chat)
+        except (NoActiveGroupCall, GroupCallNotFound):
+            pass
+    await stats.edit_text(lang["restart"])
+    Thread(
+        target=restart()
+        ).start()
 
 
 @pytgcalls.on_stream_end()
