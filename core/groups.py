@@ -19,9 +19,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 from config import config
 from core.queue import Queue
 from pyrogram.types import Message
-from typing import Dict, Any, Union
+from typing import Any, Dict, Union
 from pyrogram.raw.functions.channels import GetFullChannel
 from pyrogram.raw.functions.phone import EditGroupCallTitle
+
 
 GROUPS: Dict[int, Dict[str, Any]] = {}
 
@@ -62,7 +63,7 @@ async def set_title(message_or_chat_id: Union[Message, int], title: str, **kw):
         peer = await client.resolve_peer(chat_id)
         chat = await client.send(GetFullChannel(channel=peer))
         await client.send(EditGroupCallTitle(call=chat.full_chat.call, title=title))
-    except:
+    except BaseException:
         pass
 
 

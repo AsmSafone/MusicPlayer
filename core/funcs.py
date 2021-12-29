@@ -19,36 +19,31 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 import os
 import re
 import random
-import asyncio
 import aiohttp
+import asyncio
 import aiofiles
 from config import config
 from core.song import Song
-from pytube import Playlist
 from pyrogram import Client
+from pytube import Playlist
 from yt_dlp import YoutubeDL
 from pyrogram.types import Message
-from pytgcalls import PyTgCalls, StreamType
 from PIL import Image, ImageDraw, ImageFont
+from pytgcalls import PyTgCalls, StreamType
 from core.groups import get_group, set_title
 from youtubesearchpython import VideosSearch
-from typing import Optional, Union, Tuple, AsyncIterator
+from typing import Tuple, Union, Optional, AsyncIterator
 from pytgcalls.types.input_stream import AudioPiped, AudioVideoPiped
 from pytgcalls.types.input_stream.quality import (
-    HighQualityAudio,
-    HighQualityVideo,
-    MediumQualityAudio,
-    MediumQualityVideo,
-    LowQualityAudio,
-    LowQualityVideo,
-)
+    LowQualityAudio, LowQualityVideo, HighQualityAudio, HighQualityVideo,
+    MediumQualityAudio, MediumQualityVideo)
 
 
 safone = {}
 ydl_opts = {
-        "quiet": True,
-        "geo_bypass": True,
-        "nocheckcertificate": True,
+    "quiet": True,
+    "geo_bypass": True,
+    "nocheckcertificate": True,
 }
 ydl = YoutubeDL(ydl_opts)
 app = Client(config.SESSION, api_id=config.API_ID, api_hash=config.API_HASH)
@@ -97,7 +92,7 @@ def search(message: Message) -> Optional[Song]:
 
 def check_yt_url(text: str) -> Tuple[bool, Optional[str]]:
     pattern = re.compile(
-        "^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)([a-zA-Z0-9-_]+)?$"
+        "^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|v\\/)?)([\\w\\-]+)([a-zA-Z0-9-_]+)?$"
     )
     matches = re.findall(pattern, text)
     if len(matches) <= 0:
@@ -155,7 +150,7 @@ async def delete_messages(messages):
         if msg.chat.type == "supergroup":
             try:
                 await msg.delete()
-            except:
+            except BaseException:
                 pass
 
 
@@ -164,7 +159,7 @@ async def skip_stream(song: Song, lang):
     if safone.get(chat.id) is not None:
         try:
             await safone[chat.id].delete()
-        except:
+        except BaseException:
             pass
     infomsg = await song.request_msg.reply_text(lang["downloading"])
     await pytgcalls.change_stream(
@@ -202,7 +197,7 @@ async def start_stream(song: Song, lang):
     if safone.get(chat.id) is not None:
         try:
             await safone[chat.id].delete()
-        except:
+        except BaseException:
             pass
     infomsg = await song.request_msg.reply_text(lang["downloading"])
     await pytgcalls.join_group_call(

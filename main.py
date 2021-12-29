@@ -25,31 +25,16 @@ from core.song import Song
 from pyrogram import filters
 from pyrogram.types import Message
 from pytgcalls.types import Update
-from core import (
-    app,
-    ydl,
-    search,
-    safone,
-    pytgcalls,
-    set_group,
-    set_title,
-    get_group,
-    get_queue,
-    all_groups,
-    clear_queue,
-    skip_stream,
-    start_stream,
-    extract_args,
-    check_yt_url,
-    shuffle_queue,
-    delete_messages,
-    get_youtube_playlist,
-)
 from pyrogram.raw.types import InputPeerChannel
 from pyrogram.raw.functions.phone import CreateGroupCall
+from pytgcalls.exceptions import GroupCallNotFound, NoActiveGroupCall
 from pytgcalls.types.stream import StreamAudioEnded, StreamVideoEnded
-from pytgcalls.exceptions import NoActiveGroupCall, GroupCallNotFound
-from core.decorators import register, language, handle_error, only_admins
+from core.decorators import language, register, only_admins, handle_error
+from core import (
+    app, ydl, safone, search, get_group, get_queue, pytgcalls, set_group,
+    set_title, all_groups, clear_queue, skip_stream, check_yt_url,
+    extract_args, start_stream, shuffle_queue, delete_messages,
+    get_youtube_playlist)
 
 
 REPO = """
@@ -117,7 +102,7 @@ async def play_stream(_, message: Message, lang):
     ok, status = await song.parse()
     if not ok:
         raise Exception(status)
-    if group["is_playing"] == False:
+    if not group["is_playing"]:
         set_group(chat_id, is_playing=True, now_playing=song)
         try:
             await start_stream(song, lang)
@@ -171,7 +156,7 @@ async def live_stream(_, message: Message, lang):
     if not check:
         k = await message.reply_text(lang["notFound"])
         return await delete_messages([message, k])
-    if group["is_playing"] == False:
+    if not group["is_playing"]:
         set_group(chat_id, is_playing=True, now_playing=song)
         try:
             await start_stream(song, lang)
@@ -199,7 +184,9 @@ async def live_stream(_, message: Message, lang):
 
 
 @app.on_message(
-    filters.command(["skip", "next"], config.PREFIXES) & ~filters.private & ~filters.edited
+    filters.command(["skip", "next"], config.PREFIXES)
+    & ~filters.private
+    & ~filters.edited
 )
 @register
 @language
@@ -250,7 +237,9 @@ async def mute_vc(_, message: Message, lang):
 
 
 @app.on_message(
-    filters.command(["um", "unmute"], config.PREFIXES) & ~filters.private & ~filters.edited
+    filters.command(["um", "unmute"], config.PREFIXES)
+    & ~filters.private
+    & ~filters.edited
 )
 @register
 @language
@@ -267,7 +256,9 @@ async def unmute_vc(_, message: Message, lang):
 
 
 @app.on_message(
-    filters.command(["ps", "pause"], config.PREFIXES) & ~filters.private & ~filters.edited
+    filters.command(["ps", "pause"], config.PREFIXES)
+    & ~filters.private
+    & ~filters.edited
 )
 @register
 @language
@@ -284,7 +275,9 @@ async def pause_vc(_, message: Message, lang):
 
 
 @app.on_message(
-    filters.command(["rs", "resume"], config.PREFIXES) & ~filters.private & ~filters.edited
+    filters.command(["rs", "resume"], config.PREFIXES)
+    & ~filters.private
+    & ~filters.edited
 )
 @register
 @language
@@ -371,7 +364,7 @@ async def shuffle_list(_, message: Message, lang):
 async def loop_stream(_, message: Message, lang):
     chat_id = message.chat.id
     group = get_group(chat_id)
-    if group["loop"] == True:
+    if group["loop"]:
         set_group(chat_id, loop=False)
         k = await message.reply_text(lang["loopOff"])
     elif group["loop"] == False:
@@ -430,7 +423,9 @@ async def set_lang(_, message: Message, lang):
 
 
 @app.on_message(
-    filters.command(["ep", "export"], config.PREFIXES) & ~filters.private & ~filters.edited
+    filters.command(["ep", "export"], config.PREFIXES)
+    & ~filters.private
+    & ~filters.edited
 )
 @register
 @language
@@ -455,7 +450,9 @@ async def export_queue(_, message: Message, lang):
 
 
 @app.on_message(
-    filters.command(["ip", "import"], config.PREFIXES) & ~filters.private & ~filters.edited
+    filters.command(["ip", "import"], config.PREFIXES)
+    & ~filters.private
+    & ~filters.edited
 )
 @register
 @language
@@ -481,7 +478,7 @@ async def import_queue(_, message: Message, lang):
             song = Song(song_dict["yt_url"], message)
             song.title = song_dict["title"]
             temp_queue.append(song)
-    except:
+    except BaseException:
         k = await message.reply_text(lang["invalidFile"])
         return await delete_messages([message, k])
     group = get_group(chat_id)
@@ -538,7 +535,7 @@ async def import_playlist(_, message: Message, lang):
         return await delete_messages([message, k])
     try:
         temp_queue = get_youtube_playlist(text, message)
-    except:
+    except BaseException:
         k = await message.reply_text(lang["notFound"])
         return await delete_messages([message, k])
     group = get_group(chat_id)
@@ -596,7 +593,7 @@ async def stream_end(_, update: Update, lang):
                 if safone.get(chat_id) is not None:
                     try:
                         await safone[chat_id].delete()
-                    except:
+                    except BaseException:
                         pass
                 await set_title(chat_id, "", client=app)
                 set_group(chat_id, is_playing=False, now_playing=None)
@@ -610,7 +607,7 @@ async def closed_vc(_, chat_id: int):
         if safone.get(chat_id) is not None:
             try:
                 await safone[chat_id].delete()
-            except:
+            except BaseException:
                 pass
         await set_title(chat_id, "", client=app)
         set_group(chat_id, now_playing=None, is_playing=False)
@@ -624,7 +621,7 @@ async def kicked_vc(_, chat_id: int):
         if safone.get(chat_id) is not None:
             try:
                 await safone[chat_id].delete()
-            except:
+            except BaseException:
                 pass
         await set_title(chat_id, "", client=app)
         set_group(chat_id, now_playing=None, is_playing=False)
@@ -638,7 +635,7 @@ async def left_vc(_, chat_id: int):
         if safone.get(chat_id) is not None:
             try:
                 await safone[chat_id].delete()
-            except:
+            except BaseException:
                 pass
         await set_title(chat_id, "", client=app)
         set_group(chat_id, now_playing=None, is_playing=False)

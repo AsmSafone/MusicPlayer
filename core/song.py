@@ -23,7 +23,7 @@ from subprocess import PIPE
 from datetime import timedelta
 from aiohttp import ClientSession
 from pyrogram.types import User, Message
-from typing import Dict, Tuple, Optional, Union
+from typing import Dict, Tuple, Union, Optional
 
 
 class Song:
@@ -98,7 +98,7 @@ class Song:
                 return True
             else:
                 return False
-        except:
+        except BaseException:
             return False
 
     @staticmethod
@@ -106,7 +106,7 @@ class Song:
         title = _title
         f = ["**", "__", "`", "~~", "--"]
         for i in f:
-            title = title.replace(i, f"\{i}")
+            title = title.replace(i, f"\\{i}")
         return title
 
     def to_dict(self) -> Dict[str, str]:
