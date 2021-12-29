@@ -63,7 +63,7 @@ REPO = """
 )
 @handle_error
 async def repo(_, message: Message):
-    await message.reply_text(REPO)
+    await message.reply_text(REPO, disable_web_page_preview=True)
 
 
 @app.on_message(
