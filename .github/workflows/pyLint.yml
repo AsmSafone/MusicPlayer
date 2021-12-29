@@ -1,9 +1,9 @@
 name: pyLint
+
 on:
   push:
-    paths:
-    - "**.py"
-  workflow_dispatch:
+    branches: [ main ]
+
 jobs:
   pyLint:
     runs-on: ubuntu-latest
@@ -29,7 +29,7 @@ jobs:
         run: |
           isort -v --cs --ca --ls --lss --ds --fss --lai 2 -m 4 .
       - name: Commit Checkout
-      - uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v4
         with:
           repository: .
           commit_user_name: safone
