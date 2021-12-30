@@ -20,8 +20,8 @@ import os
 import json
 from config import config
 from core.song import Song
-from threading import Thread
 from pyrogram import filters
+from threading import Thread
 from pyrogram.types import Message
 from pytgcalls.types import Update
 from pyrogram.raw.types import InputPeerChannel
@@ -572,9 +572,7 @@ async def update_restart(_, message: Message, lang):
         except (NoActiveGroupCall, GroupCallNotFound):
             pass
     await stats.edit_text(lang["restart"])
-    Thread(
-        target=restart()
-        ).start()
+    Thread(target=restart()).start()
 
 
 @pytgcalls.on_stream_end()
