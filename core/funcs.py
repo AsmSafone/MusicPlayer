@@ -120,18 +120,18 @@ def extract_args(text: str) -> str:
 def get_quality(song: Song) -> Union[AudioPiped, AudioVideoPiped]:
     group = get_group(song.request_msg.chat.id)
     if group["is_video"]:
-        if config.CUSTOM_QUALITY.lower() == "high":
+        if config.QUALITY.lower() == "high":
             return AudioVideoPiped(
                 song.remote_url, HighQualityAudio(), HighQualityVideo(), song.headers
             )
-        elif config.CUSTOM_QUALITY.lower() == "medium":
+        elif config.QUALITY.lower() == "medium":
             return AudioVideoPiped(
                 song.remote_url,
                 MediumQualityAudio(),
                 MediumQualityVideo(),
                 song.headers,
             )
-        elif config.CUSTOM_QUALITY.lower() == "low":
+        elif config.QUALITY.lower() == "low":
             return AudioVideoPiped(
                 song.remote_url, LowQualityAudio(), LowQualityVideo(), song.headers
             )
@@ -141,11 +141,11 @@ def get_quality(song: Song) -> Union[AudioPiped, AudioVideoPiped]:
                 song.remote_url, HighQualityAudio(), HighQualityVideo(), song.headers
             )
     else:
-        if config.CUSTOM_QUALITY.lower() == "high":
+        if config.QUALITY.lower() == "high":
             return AudioPiped(song.remote_url, HighQualityAudio(), song.headers)
-        elif config.CUSTOM_QUALITY.lower() == "medium":
+        elif config.QUALITY.lower() == "medium":
             return AudioPiped(song.remote_url, MediumQualityAudio(), song.headers)
-        elif config.CUSTOM_QUALITY.lower() == "low":
+        elif config.QUALITY.lower() == "low":
             return AudioPiped(song.remote_url, LowQualityAudio(), song.headers)
         else:
             print("Invalid Quality Specified. Defaulting to High!")

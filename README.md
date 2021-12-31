@@ -55,7 +55,10 @@ thanks to the translators.
 
 ## 🚀 <a name="deploy"></a>Deploy
 
-[![Deploy on Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/AsmSafone/MusicPlayer)
+[![Deploy on Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+Note: `First Fork The Repo Then Click On Deploy To Heroku Button!`
+
 
 ## ☁️ <a name="self_host"></a>Self Host
 
@@ -74,9 +77,9 @@ $ sudo docker run musicplayer
 - `API_HASH`: Telegram app hash.
 - `SESSION`: Pyrogram string session. You can generate from [here](https://replit.com/@AsmSafone/genStr).
 - `SUDOERS`: ID of sudo users (separate multiple ids with space).
+- `QUALITY`: Custom stream quality for the userbot in vc. Default: `high`
 - `PREFIX`: Commad prefixes (separate multiple prefix with space). Eg: `! /`
 - `LANGUAGE`: An [available](#languages) bot language (can change it anytime). Default: `en`
-- `CUSTOM_QUALITY`: Custom stream quality for the userbot in vc. Default: `high`
 
 ## 📄 <a name="commands"></a>Commands
 
