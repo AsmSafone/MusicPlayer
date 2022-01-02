@@ -1,6 +1,6 @@
 """
 Music Player, Telegram Voice Chat Bot
-Copyright (c) 2021  Asm Safone <https://github.com/AsmSafone>
+Copyright (c) 2021  @Minukakevin
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -36,11 +36,6 @@ from core import (
     get_youtube_playlist)
 
 
-REPO = """
-🤖 **Music Player**
-- Repo: [GitHub](https://github.com/AsmSafone/MusicPlayer)
-- License: AGPL-3.0-or-later
-"""
 
 
 @app.on_message(
