@@ -1,6 +1,6 @@
 """
 Music Player, Telegram Voice Chat Bot
-Copyright (c) 2021  Asm Safone <https://github.com/AsmSafone>
+Copyright (c) 2021-present Asm Safone <https://github.com/AsmSafone>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -64,21 +64,23 @@ themes = [
 ]
 
 
-def search(message: Message) -> Optional[Song]:
+async def search(message: Message) -> Optional[Song]:
     query = ""
-    if message.reply_to_message.text:
-        query = message.reply_to_message.text
-    elif message.reply_to_message.media:
-        reply = message.reply_to_message
-        media = reply.audio or reply.video or reply.document
-        if not media:
-            return None
-        msg = message.reply_text("`Trying To Download...`")
-        file = reply.download(
-            progress=progress_bar, progress_args=("Downloading...", time.time(), msg)
-        )
-        msg.delete()
-        return Song({"source": reply.link, "remote": file}, message)
+    reply = message.reply_to_message
+    if reply:
+        if reply.text:
+            query = reply.text
+        elif reply.media:
+            media = reply.audio or reply.video or reply.document
+            if not media:
+                return None
+            lel = await message.reply_text("`Trying To Download...`")
+            file = await reply.download(
+                progress=progress_bar,
+                progress_args=("Downloading...", time.time(), lel),
+            )
+            await lel.delete()
+            return Song({"source": reply.link, "remote": file}, message)
     else:
         query = extract_args(message.text)
     if query == "":
@@ -121,7 +123,7 @@ def extract_args(text: str) -> str:
         return text.split(" ", 1)[1]
 
 
-def progress_bar(current, zero, total, start, msg):
+async def progress_bar(current, zero, total, start, msg):
     now = time.time()
     if total == 0:
         return
@@ -137,7 +139,7 @@ def progress_bar(current, zero, total, start, msg):
         current_message = f"**Downloading...** `{round(percentage, 2)}%`\n`{progressbar}`\n**Done**: `{humanbytes(current)}` | **Total**: `{humanbytes(total)}`\n**Speed**: `{humanbytes(speed)}/s` | **ETA**: `{time_to_complete}`"
         if msg:
             try:
-                msg.edit(text=current_message)
+                await msg.edit(text=current_message)
             except BaseException:
                 pass
 

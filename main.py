@@ -1,6 +1,6 @@
 """
 Music Player, Telegram Voice Chat Bot
-Copyright (c) 2021  Asm Safone <https://github.com/AsmSafone>
+Copyright (c) 2021-present Asm Safone <https://github.com/AsmSafone>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -91,7 +91,7 @@ async def play_stream(_, message: Message, lang):
         if not check:
             k = await message.reply_text(lang["notAllowed"])
             return await delete_messages([message, k])
-    song = search(message)
+    song = await search(message)
     if song is None:
         k = await message.reply_text(lang["notFound"])
         return await delete_messages([message, k])
