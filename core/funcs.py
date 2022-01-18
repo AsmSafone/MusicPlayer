@@ -77,7 +77,7 @@ async def search(message: Message) -> Optional[Song]:
             lel = await message.reply_text("`Trying To Download...`")
             file = await reply.download(
                 progress=progress_bar,
-                progress_args=("Downloading...", time.time(), lel),
+                progress_args=("Downloading...", lel, time.time()),
             )
             await lel.delete()
             return Song({"source": reply.link, "remote": file}, message)
@@ -123,7 +123,7 @@ def extract_args(text: str) -> str:
         return text.split(" ", 1)[1]
 
 
-async def progress_bar(current, zero, total, start, msg):
+async def progress_bar(current, total, ud_type, msg, start):
     now = time.time()
     if total == 0:
         return
