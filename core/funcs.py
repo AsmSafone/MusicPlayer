@@ -18,9 +18,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 import os
 import re
-import random
-import time
 import math
+import time
+import random
 import aiohttp
 import asyncio
 import aiofiles
@@ -39,15 +39,16 @@ from spotipy.oauth2 import SpotifyClientCredentials
 try:
     sp = Spotify(
         client_credentials_manager=SpotifyClientCredentials(
-            config.SPOTIFY_CLIENT_ID,
-            config.SPOTIFY_CLIENT_SECRET
+            config.SPOTIFY_CLIENT_ID, config.SPOTIFY_CLIENT_SECRET
         )
     )
     config.SPOTIFY = True
-except:
-    print('WARNING: SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET is not set.'
-          'Bot will work fine but playing songs with spotify playlist won\'t work.'
-          'Check your configs or .env file if you want to add them or ask @AsmSupport!')
+except BaseException:
+    print(
+        "WARNING: SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET is not set."
+        "Bot will work fine but playing songs with spotify playlist won't work."
+        "Check your configs or .env file if you want to add them or ask @AsmSupport!"
+    )
     config.SPOTIFY = False
 
 
@@ -72,10 +73,12 @@ def search(message: Message) -> Optional[Song]:
         media = reply.audio or reply.video or reply.document
         if not media:
             return None
-        msg = message.reply_text('`Trying To Download...`')
-        file = reply.download(progress=progress_bar, progress_args=('Downloading...', time.time(), msg))
+        msg = message.reply_text("`Trying To Download...`")
+        file = reply.download(
+            progress=progress_bar, progress_args=("Downloading...", time.time(), msg)
+        )
         msg.delete()
-        return Song({'source': reply.link, 'remote': file}, message)
+        return Song({"source": reply.link, "remote": file}, message)
     else:
         query = extract_args(message.text)
     if query == "":
@@ -83,18 +86,19 @@ def search(message: Message) -> Optional[Song]:
     is_yt_url, url = check_yt_url(query)
     if is_yt_url:
         return Song(url, message)
-    elif config.SPOTIFY and 'open.spotify.com/track' in query:
-        track_id = query.split('open.spotify.com/track/')[1].split('?')[0]
+    elif config.SPOTIFY and "open.spotify.com/track" in query:
+        track_id = query.split("open.spotify.com/track/")[1].split("?")[0]
         track = sp.track(track_id)
         query = f'{" / ".join([artist["name"] for artist in track["artists"]])} - {track["name"]}'
         return Song(query, message)
     else:
         group = get_group(message.chat.id)
         vs = VideosSearch(
-            query, limit=1, language=group['lang'], region=group['lang']).result()
-        if len(vs['result']) > 0 and vs['result'][0]['type'] == 'video':
-            video = vs['result'][0]
-            return Song(video['link'], message)
+            query, limit=1, language=group["lang"], region=group["lang"]
+        ).result()
+        if len(vs["result"]) > 0 and vs["result"][0]["type"] == "video":
+            video = vs["result"][0]
+            return Song(video["link"], message)
     return None
 
 
@@ -126,28 +130,28 @@ def progress_bar(current, zero, total, start, msg):
         percentage = current * 100 / total
         time_to_complete = round(((total - current) / speed)) * 1000
         time_to_complete = TimeFormatter(time_to_complete)
-        progressbar = "[{0}{1}]".format(\
-            ''.join(["▰" for i in range(math.floor(percentage / 10))]),
-            ''.join(["▱" for i in range(10 - math.floor(percentage / 10))])
-            )
+        progressbar = "[{0}{1}]".format(
+            "".join(["▰" for i in range(math.floor(percentage / 10))]),
+            "".join(["▱" for i in range(10 - math.floor(percentage / 10))]),
+        )
         current_message = f"**Downloading...** `{round(percentage, 2)}%`\n`{progressbar}`\n**Done**: `{humanbytes(current)}` | **Total**: `{humanbytes(total)}`\n**Speed**: `{humanbytes(speed)}/s` | **ETA**: `{time_to_complete}`"
         if msg:
             try:
                 msg.edit(text=current_message)
-            except:
+            except BaseException:
                 pass
 
 
 def humanbytes(size):
     if not size:
         return ""
-    power = 2**10
+    power = 2 ** 10
     n = 0
-    Dic_powerN = {0: ' ', 1: 'K', 2: 'M', 3: 'G', 4: 'T'}
+    Dic_powerN = {0: " ", 1: "K", 2: "M", 3: "G", 4: "T"}
     while size > power:
         size /= power
         n += 1
-    return str(round(size, 2)) + " " + Dic_powerN[n] + 'B'
+    return str(round(size, 2)) + " " + Dic_powerN[n] + "B"
 
 
 async def delete_messages(messages):
@@ -165,11 +169,13 @@ def TimeFormatter(milliseconds: int) -> str:
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
-    tmp = ((str(days) + " Days, ") if days else "") + \
-        ((str(hours) + " Hours, ") if hours else "") + \
-        ((str(minutes) + " Min, ") if minutes else "") + \
-        ((str(seconds) + " Sec, ") if seconds else "") + \
-        ((str(milliseconds) + " MS, ") if milliseconds else "")
+    tmp = (
+        ((str(days) + " Days, ") if days else "")
+        + ((str(hours) + " Hours, ") if hours else "")
+        + ((str(minutes) + " Min, ") if minutes else "")
+        + ((str(seconds) + " Sec, ") if seconds else "")
+        + ((str(milliseconds) + " MS, ") if milliseconds else "")
+    )
     return tmp[:-2]
 
 
@@ -289,19 +295,21 @@ async def get_youtube_playlist(pl_url: str, message: Message) -> AsyncIterator[S
 
 
 async def get_spotify_playlist(pl_url: str, message: Message) -> AsyncIterator[Song]:
-    pl_id = re.split('[^a-zA-Z0-9]', pl_url.split('spotify.com/playlist/')[1])[0]
+    pl_id = re.split("[^a-zA-Z0-9]", pl_url.split("spotify.com/playlist/")[1])[0]
     offset = 0
     while True:
-        resp = sp.playlist_items(pl_id, fields='items.track.name,items.track.artists.name', offset=offset)
-        if len(resp['items']) == 0:
+        resp = sp.playlist_items(
+            pl_id, fields="items.track.name,items.track.artists.name", offset=offset
+        )
+        if len(resp["items"]) == 0:
             break
-        for item in resp['items']:
-            track = item['track']
+        for item in resp["items"]:
+            track = item["track"]
             song_name = f'{",".join([artist["name"] for artist in track["artists"]])} - {track["name"]}'
             vs = VideosSearch(song_name, limit=1).result()
-            if len(vs['result']) > 0 and vs['result'][0]['type'] == 'video':
-                video = vs['result'][0]
-                song = Song(video['link'], message)
-                song.title = video['title']
+            if len(vs["result"]) > 0 and vs["result"][0]["type"] == "video":
+                video = vs["result"][0]
+                song = Song(video["link"], message)
+                song.title = video["title"]
                 yield song
-        offset += len(resp['items'])
+        offset += len(resp["items"])

@@ -68,10 +68,10 @@ async def start_stream(song: Song, lang):
     infomsg = await song.request_msg.reply_text(lang["downloading"])
     try:
         await pytgcalls.join_group_call(
-        chat.id,
-        get_quality(song),
-        stream_type=StreamType().pulse_stream,
-    )
+            chat.id,
+            get_quality(song),
+            stream_type=StreamType().pulse_stream,
+        )
     except (NoActiveGroupCall, GroupCallNotFound):
         peer = await app.resolve_peer(chat.id)
         await app.send(
@@ -112,7 +112,7 @@ async def start_stream(song: Song, lang):
 
 def get_quality(song: Song) -> Union[AudioPiped, AudioVideoPiped]:
     group = get_group(song.request_msg.chat.id)
-    if group['stream_mode'] == 'video':
+    if group["stream_mode"] == "video":
         if config.QUALITY.lower() == "high":
             return AudioVideoPiped(
                 song.remote, HighQualityAudio(), HighQualityVideo(), song.headers
@@ -143,4 +143,3 @@ def get_quality(song: Song) -> Union[AudioPiped, AudioVideoPiped]:
         else:
             print("WARNING: Invalid Quality Specified. Defaulting to High!")
             return AudioPiped(song.remote, HighQualityAudio(), song.headers)
-

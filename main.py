@@ -28,10 +28,10 @@ from pytgcalls.exceptions import GroupCallNotFound, NoActiveGroupCall
 from pytgcalls.types.stream import StreamAudioEnded, StreamVideoEnded
 from core.decorators import language, register, only_admins, handle_error
 from core import (
-    app, safone, pytgcalls, search, get_group, get_queue,
-    set_group, set_title, all_groups, clear_queue, skip_stream,
-    extract_args, start_stream, shuffle_queue, delete_messages,
-    is_sudo, is_admin, get_youtube_playlist, get_spotify_playlist)
+    app, safone, search, is_sudo, is_admin, get_group, get_queue, pytgcalls,
+    set_group, set_title, all_groups, clear_queue, skip_stream, extract_args,
+    start_stream, shuffle_queue, delete_messages, get_spotify_playlist,
+    get_youtube_playlist)
 
 
 REPO = """
@@ -45,8 +45,8 @@ if config.BOT_TOKEN:
         "MusicPlayer",
         api_id=config.API_ID,
         api_hash=config.API_HASH,
-        bot_token=config.BOT_TOKEN
-        )
+        bot_token=config.BOT_TOKEN,
+    )
     client = bot
 else:
     client = app
@@ -69,9 +69,7 @@ async def ping(_, message: Message):
 
 
 @client.on_message(
-    filters.command(["start", "help"], config.PREFIXES)
-    & ~filters.bot
-    & ~filters.edited
+    filters.command(["start", "help"], config.PREFIXES) & ~filters.bot & ~filters.edited
 )
 @language
 @handle_error
@@ -88,9 +86,9 @@ async def help(_, message: Message, lang):
 async def play_stream(_, message: Message, lang):
     chat_id = message.chat.id
     group = get_group(chat_id)
-    if group['admins_only']:
+    if group["admins_only"]:
         check = await is_admin(message)
-        if check == False:
+        if not check:
             k = await message.reply_text(lang["notAllowed"])
             return await delete_messages([message, k])
     song = search(message)
@@ -125,19 +123,19 @@ async def play_stream(_, message: Message, lang):
 async def live_stream(_, message: Message, lang):
     chat_id = message.chat.id
     group = get_group(chat_id)
-    if group['admins_only']:
+    if group["admins_only"]:
         check = await is_admin(message)
-        if check == False:
+        if not check:
             k = await message.reply_text(lang["notAllowed"])
             return await delete_messages([message, k])
     args = extract_args(message.text)
     if args is None:
         k = await message.reply_text(lang["notFound"])
         return await delete_messages([message, k])
-    if ' ' in args and args.count(' ') == 1 and args[-5:] == 'parse':
-        song = Song({'source': args.split(' ')[0], 'parsed': False}, message)
+    if " " in args and args.count(" ") == 1 and args[-5:] == "parse":
+        song = Song({"source": args.split(" ")[0], "parsed": False}, message)
     else:
-        song = Song({'source': args, 'remote': args}, message)
+        song = Song({"source": args, "remote": args}, message)
     ok, status = await song.parse()
     if not ok:
         raise Exception(status)
@@ -338,10 +336,10 @@ async def loop_stream(_, message: Message, lang):
     group = get_group(chat_id)
     if group["loop"]:
         set_group(chat_id, loop=False)
-        k = await message.reply_text(lang["loopMode"] % 'Disabled')
+        k = await message.reply_text(lang["loopMode"] % "Disabled")
     elif group["loop"] == False:
         set_group(chat_id, loop=True)
-        k = await message.reply_text(lang["loopMode"] % 'Enabled')
+        k = await message.reply_text(lang["loopMode"] % "Enabled")
     await delete_messages([message, k])
 
 
@@ -357,11 +355,11 @@ async def loop_stream(_, message: Message, lang):
 async def switch_mode(_, message: Message, lang):
     chat_id = message.chat.id
     group = get_group(chat_id)
-    if group['stream_mode'] == 'audio':
-        set_group(chat_id, stream_mode='video')
+    if group["stream_mode"] == "audio":
+        set_group(chat_id, stream_mode="video")
         k = await message.reply_text(lang["videoMode"])
     else:
-        set_group(chat_id, stream_mode='audio')
+        set_group(chat_id, stream_mode="audio")
         k = await message.reply_text(lang["audioMode"])
     await delete_messages([message, k])
 
@@ -380,10 +378,10 @@ async def admins_only(_, message: Message, lang):
     group = get_group(chat_id)
     if group["admins_only"]:
         set_group(chat_id, admins_only=False)
-        k = await message.reply_text(lang["adminsOnly"] % 'Disabled')
+        k = await message.reply_text(lang["adminsOnly"] % "Disabled")
     else:
         set_group(chat_id, admins_only=True)
-        k = await message.reply_text(lang["adminsOnly"] % 'Enabled')
+        k = await message.reply_text(lang["adminsOnly"] % "Enabled")
     await delete_messages([message, k])
 
 
@@ -503,9 +501,9 @@ async def import_queue(_, message: Message, lang):
 async def import_playlist(_, message: Message, lang):
     chat_id = message.chat.id
     group = get_group(chat_id)
-    if group['admins_only']:
+    if group["admins_only"]:
         check = await is_admin(message)
-        if check == False:
+        if not check:
             k = await message.reply_text(lang["notAllowed"])
             return await delete_messages([message, k])
     if message.reply_to_message:
@@ -527,7 +525,7 @@ async def import_playlist(_, message: Message, lang):
             return await delete_messages([message, k])
         try:
             temp_queue = get_spotify_playlist(text, message)
-        except:
+        except BaseException:
             k = await message.reply_text(lang["notFound"])
             return await delete_messages([message, k])
     else:
@@ -560,7 +558,7 @@ async def import_playlist(_, message: Message, lang):
 @handle_error
 async def update_restart(_, message: Message, lang):
     check = await is_sudo(message)
-    if check == False:
+    if not check:
         k = await message.reply_text(lang["notAllowed"])
         return await delete_messages([message, k])
     chats = all_groups()
@@ -571,7 +569,7 @@ async def update_restart(_, message: Message, lang):
         except (NoActiveGroupCall, GroupCallNotFound):
             pass
     await stats.edit_text(lang["restart"])
-    shutil.rmtree('downloads', ignore_errors=True)
+    shutil.rmtree("downloads", ignore_errors=True)
     os.system(f"kill -9 {os.getpid()} && bash startup.sh")
 
 

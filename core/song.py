@@ -67,8 +67,10 @@ class Song:
         except json.JSONDecodeError:
             self._retries += 1
             return await self.parse()
-        check_remote = await self.check_remote_url(video['url'], video['http_headers'])
-        check_thumb = await self.check_remote_url(video['thumbnail'], video['http_headers'])
+        check_remote = await self.check_remote_url(video["url"], video["http_headers"])
+        check_thumb = await self.check_remote_url(
+            video["thumbnail"], video["http_headers"]
+        )
         if check_remote and check_thumb:
             self.title = self._escape(video["title"])
             self.duration = str(timedelta(seconds=video["duration"]))
