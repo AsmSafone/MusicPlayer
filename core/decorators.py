@@ -23,9 +23,9 @@ from pyrogram import Client
 from datetime import datetime
 from pytgcalls import PyTgCalls
 from traceback import format_exc
+from typing import Union, Callable
 from pyrogram.types import Message
 from pytgcalls.types import Update
-from typing import Union, Callable
 from core.groups import get_group, all_groups, set_default
 
 

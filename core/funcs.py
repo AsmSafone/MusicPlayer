@@ -18,38 +18,37 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 import os
 import re
-import sys
-import time
 import random
+import time
+import math
 import aiohttp
 import asyncio
 import aiofiles
 from config import config
 from core.song import Song
-from pyrogram import Client
 from pytube import Playlist
-from yt_dlp import YoutubeDL
+from spotipy import Spotify
+from core.groups import get_group
 from pyrogram.types import Message
 from PIL import Image, ImageDraw, ImageFont
-from pytgcalls import PyTgCalls, StreamType
-from core.groups import get_group, set_title
 from youtubesearchpython import VideosSearch
-from typing import Tuple, Union, Optional, AsyncIterator
-from pytgcalls.types.input_stream import AudioPiped, AudioVideoPiped
-from pytgcalls.types.input_stream.quality import (
-    LowQualityAudio, LowQualityVideo, HighQualityAudio, HighQualityVideo,
-    MediumQualityAudio, MediumQualityVideo)
+from typing import Tuple, Optional, AsyncIterator
+from spotipy.oauth2 import SpotifyClientCredentials
 
 
-safone = {}
-ydl_opts = {
-    "quiet": True,
-    "geo_bypass": True,
-    "nocheckcertificate": True,
-}
-ydl = YoutubeDL(ydl_opts)
-app = Client(config.SESSION, api_id=config.API_ID, api_hash=config.API_HASH)
-pytgcalls = PyTgCalls(app)
+try:
+    sp = Spotify(
+        client_credentials_manager=SpotifyClientCredentials(
+            config.SPOTIFY_CLIENT_ID,
+            config.SPOTIFY_CLIENT_SECRET
+        )
+    )
+    config.SPOTIFY = True
+except:
+    print('WARNING: SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET is not set.'
+          'Bot will work fine but playing songs with spotify playlist won\'t work.'
+          'Check your configs or .env file if you want to add them or ask @AsmSupport!')
+    config.SPOTIFY = False
 
 
 themes = [
@@ -64,23 +63,19 @@ themes = [
 ]
 
 
-def restart():
-    os.system("git pull")
-    time.sleep(5)
-    os.execl(sys.executable, sys.executable, *sys.argv)
-
-
 def search(message: Message) -> Optional[Song]:
     query = ""
-    if message.reply_to_message:
-        if message.reply_to_message.audio:
-            query = message.reply_to_message.audio.title
-        elif message.reply_to_message.video:
-            query = message.reply_to_message.video.file_name
-        elif message.reply_to_message.document:
-            query = message.reply_to_message.document.file_name
-        else:
-            query = message.reply_to_message.text
+    if message.reply_to_message.text:
+        query = message.reply_to_message.text
+    elif message.reply_to_message.media:
+        reply = message.reply_to_message
+        media = reply.audio or reply.video or reply.document
+        if not media:
+            return None
+        msg = message.reply_text('`Trying To Download...`')
+        file = reply.download(progress=progress_bar, progress_args=('Downloading...', time.time(), msg))
+        msg.delete()
+        return Song({'source': reply.link, 'remote': file}, message)
     else:
         query = extract_args(message.text)
     if query == "":
@@ -88,13 +83,18 @@ def search(message: Message) -> Optional[Song]:
     is_yt_url, url = check_yt_url(query)
     if is_yt_url:
         return Song(url, message)
-    group = get_group(message.chat.id)
-    vs = VideosSearch(
-        query, limit=1, language=group["lang"], region=group["lang"]
-    ).result()
-    if len(vs["result"]) > 0 and vs["result"][0]["type"] == "video":
-        video = vs["result"][0]
-        return Song(video["link"], message)
+    elif config.SPOTIFY and 'open.spotify.com/track' in query:
+        track_id = query.split('open.spotify.com/track/')[1].split('?')[0]
+        track = sp.track(track_id)
+        query = f'{" / ".join([artist["name"] for artist in track["artists"]])} - {track["name"]}'
+        return Song(query, message)
+    else:
+        group = get_group(message.chat.id)
+        vs = VideosSearch(
+            query, limit=1, language=group['lang'], region=group['lang']).result()
+        if len(vs['result']) > 0 and vs['result'][0]['type'] == 'video':
+            video = vs['result'][0]
+            return Song(video['link'], message)
     return None
 
 
@@ -117,39 +117,37 @@ def extract_args(text: str) -> str:
         return text.split(" ", 1)[1]
 
 
-def get_quality(song: Song) -> Union[AudioPiped, AudioVideoPiped]:
-    group = get_group(song.request_msg.chat.id)
-    if group["is_video"]:
-        if config.QUALITY.lower() == "high":
-            return AudioVideoPiped(
-                song.remote_url, HighQualityAudio(), HighQualityVideo(), song.headers
+def progress_bar(current, zero, total, start, msg):
+    now = time.time()
+    if total == 0:
+        return
+    if round((now - start) % 3) == 0 or current == total:
+        speed = current / (now - start)
+        percentage = current * 100 / total
+        time_to_complete = round(((total - current) / speed)) * 1000
+        time_to_complete = TimeFormatter(time_to_complete)
+        progressbar = "[{0}{1}]".format(\
+            ''.join(["▰" for i in range(math.floor(percentage / 10))]),
+            ''.join(["▱" for i in range(10 - math.floor(percentage / 10))])
             )
-        elif config.QUALITY.lower() == "medium":
-            return AudioVideoPiped(
-                song.remote_url,
-                MediumQualityAudio(),
-                MediumQualityVideo(),
-                song.headers,
-            )
-        elif config.QUALITY.lower() == "low":
-            return AudioVideoPiped(
-                song.remote_url, LowQualityAudio(), LowQualityVideo(), song.headers
-            )
-        else:
-            print("Invalid Quality Specified. Defaulting to High!")
-            return AudioVideoPiped(
-                song.remote_url, HighQualityAudio(), HighQualityVideo(), song.headers
-            )
-    else:
-        if config.QUALITY.lower() == "high":
-            return AudioPiped(song.remote_url, HighQualityAudio(), song.headers)
-        elif config.QUALITY.lower() == "medium":
-            return AudioPiped(song.remote_url, MediumQualityAudio(), song.headers)
-        elif config.QUALITY.lower() == "low":
-            return AudioPiped(song.remote_url, LowQualityAudio(), song.headers)
-        else:
-            print("Invalid Quality Specified. Defaulting to High!")
-            return AudioPiped(song.remote_url, HighQualityAudio(), song.headers)
+        current_message = f"**Downloading...** `{round(percentage, 2)}%`\n`{progressbar}`\n**Done**: `{humanbytes(current)}` | **Total**: `{humanbytes(total)}`\n**Speed**: `{humanbytes(speed)}/s` | **ETA**: `{time_to_complete}`"
+        if msg:
+            try:
+                msg.edit(text=current_message)
+            except:
+                pass
+
+
+def humanbytes(size):
+    if not size:
+        return ""
+    power = 2**10
+    n = 0
+    Dic_powerN = {0: ' ', 1: 'K', 2: 'M', 3: 'G', 4: 'T'}
+    while size > power:
+        size /= power
+        n += 1
+    return str(round(size, 2)) + " " + Dic_powerN[n] + 'B'
 
 
 async def delete_messages(messages):
@@ -162,81 +160,17 @@ async def delete_messages(messages):
                 pass
 
 
-async def skip_stream(song: Song, lang):
-    chat = song.request_msg.chat
-    if safone.get(chat.id) is not None:
-        try:
-            await safone[chat.id].delete()
-        except BaseException:
-            pass
-    infomsg = await song.request_msg.reply_text(lang["downloading"])
-    await pytgcalls.change_stream(
-        chat.id,
-        get_quality(song),
-    )
-    await set_title(chat.id, song.title, client=app)
-    thumb = await generate_cover(
-        song.title,
-        chat.title,
-        chat.id,
-        song.thumb,
-    )
-    safone[chat.id] = await song.request_msg.reply_photo(
-        photo=thumb,
-        caption=lang["playing"]
-        % (
-            song.title,
-            song.yt_url,
-            song.duration,
-            song.request_msg.chat.id,
-            song.requested_by.mention
-            if song.requested_by
-            else song.request_msg.sender_chat.title,
-        ),
-        quote=False,
-    )
-    await infomsg.delete()
-    if os.path.exists(thumb):
-        os.remove(thumb)
-
-
-async def start_stream(song: Song, lang):
-    chat = song.request_msg.chat
-    if safone.get(chat.id) is not None:
-        try:
-            await safone[chat.id].delete()
-        except BaseException:
-            pass
-    infomsg = await song.request_msg.reply_text(lang["downloading"])
-    await pytgcalls.join_group_call(
-        chat.id,
-        get_quality(song),
-        stream_type=StreamType().pulse_stream,
-    )
-    await set_title(chat.id, song.title, client=app)
-    thumb = await generate_cover(
-        song.title,
-        chat.title,
-        chat.id,
-        song.thumb,
-    )
-    safone[chat.id] = await song.request_msg.reply_photo(
-        photo=thumb,
-        caption=lang["playing"]
-        % (
-            song.title,
-            song.yt_url,
-            song.duration,
-            song.request_msg.chat.id,
-            song.requested_by.mention
-            if song.requested_by
-            else song.request_msg.sender_chat.title,
-        ),
-        quote=False,
-    )
-    await infomsg.delete()
-    if os.path.exists(thumb):
-        os.remove(thumb)
+def TimeFormatter(milliseconds: int) -> str:
+    seconds, milliseconds = divmod(int(milliseconds), 1000)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+    tmp = ((str(days) + " Days, ") if days else "") + \
+        ((str(hours) + " Hours, ") if hours else "") + \
+        ((str(minutes) + " Min, ") if minutes else "") + \
+        ((str(seconds) + " Sec, ") if seconds else "") + \
+        ((str(milliseconds) + " MS, ") if milliseconds else "")
+    return tmp[:-2]
 
 
 def changeImageSize(maxWidth, maxHeight, image):
@@ -352,3 +286,22 @@ async def get_youtube_playlist(pl_url: str, message: Message) -> AsyncIterator[S
         song = Song(pl[i], message)
         song.title = pl.videos[i].title
         yield song
+
+
+async def get_spotify_playlist(pl_url: str, message: Message) -> AsyncIterator[Song]:
+    pl_id = re.split('[^a-zA-Z0-9]', pl_url.split('spotify.com/playlist/')[1])[0]
+    offset = 0
+    while True:
+        resp = sp.playlist_items(pl_id, fields='items.track.name,items.track.artists.name', offset=offset)
+        if len(resp['items']) == 0:
+            break
+        for item in resp['items']:
+            track = item['track']
+            song_name = f'{",".join([artist["name"] for artist in track["artists"]])} - {track["name"]}'
+            vs = VideosSearch(song_name, limit=1).result()
+            if len(vs['result']) > 0 and vs['result'][0]['type'] == 'video':
+                video = vs['result'][0]
+                song = Song(video['link'], message)
+                song.title = video['title']
+                yield song
+        offset += len(resp['items'])

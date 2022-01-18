@@ -32,32 +32,32 @@ class Song:
             self.title: str = None
             self.duration: str = None
             self.thumb: str = None
-            self.remote_url: str = None
-            self.yt_url: str = link
+            self.remote: str = None
+            self.source: str = link
             self.headers: dict = None
             self.request_msg: Message = request_msg
             self.requested_by: User = request_msg.from_user
             self.parsed: bool = False
             self._retries: int = 0
         elif isinstance(link, dict):
-            self.title: str = "Live Stream"
-            self.duration: str = None
-            self.thumb: str = "https://telegra.ph/file/820cac7cb7b1a025542e2.jpg"
-            self.remote_url: str = link["url"]
-            self.yt_url: str = link["url"]
-            self.headers: dict = None
-            self.request_msg: Message = request_msg
-            self.requested_by: User = request_msg.from_user
             self.parsed: bool = True
             self._retries: int = 0
+            self.title: str = "Custom Stream"
+            self.duration: str = "N/A"
+            self.headers: dict = None
+            self.thumb: str = "https://telegra.ph/file/820cac7cb7b1a025542e2.jpg"
+            for key, value in link.items():
+                setattr(self, key, value)
+            self.request_msg: Message = request_msg
+            self.requested_by: User = request_msg.from_user
 
     async def parse(self) -> Tuple[bool, str]:
-        if self._retries >= 5:
-            return (False, "MAX_RETRY_LIMIT_REACHED")
         if self.parsed:
             return (True, "ALREADY_PARSED")
+        if self._retries >= 5:
+            return (False, "MAX_RETRY_LIMIT_REACHED")
         process = await asyncio.create_subprocess_shell(
-            f"yt-dlp --print-json --skip-download -f best {quote(self.yt_url)}",
+            f"yt-dlp --print-json --skip-download -f best {quote(self.source)}",
             stdout=PIPE,
             stderr=PIPE,
         )
@@ -67,17 +67,13 @@ class Song:
         except json.JSONDecodeError:
             self._retries += 1
             return await self.parse()
-        check_video = await self.check_remote_url(video["url"], video["http_headers"])
-        check_image = await self.check_remote_url(
-            video["thumbnail"], video["http_headers"]
-        )
-        if check_video and check_image:
-            if video["is_live"]:
-                return (False, "LIVE_STREAM_ERROR")
+        check_remote = await self.check_remote_url(video['url'], video['http_headers'])
+        check_thumb = await self.check_remote_url(video['thumbnail'], video['http_headers'])
+        if check_remote and check_thumb:
             self.title = self._escape(video["title"])
             self.duration = str(timedelta(seconds=video["duration"]))
             self.thumb = video["thumbnail"]
-            self.remote_url = video["url"]
+            self.remote = video["url"]
             self.headers = video["http_headers"]
             self.parsed = True
             return (True, "PARSED")
@@ -110,4 +106,4 @@ class Song:
         return title
 
     def to_dict(self) -> Dict[str, str]:
-        return {"title": self.title, "yt_url": self.yt_url}
+        return {"title": self.title, "source": self.source}

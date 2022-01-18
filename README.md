@@ -90,13 +90,19 @@ $ sudo docker run musicplayer
 
 ## ⚒ <a name="configs"></a>Configs
 
-- `API_ID`: Telegram app id.
-- `API_HASH`: Telegram app hash.
+- `API_ID`: Telegram app id from https://my.telegram.org/apps.
+- `API_HASH`: Telegram app hash from https://my.telegram.org/apps.
 - `SESSION`: Pyrogram string session. You can generate from [here](https://replit.com/@AsmSafone/genStr).
 - `SUDOERS`: ID of sudo users (separate multiple ids with space).
-- `QUALITY`: Custom stream quality for the userbot in vc. Default: `high`
-- `PREFIX`: Commad prefixes (separate multiple prefix with space). Eg: `! /`
+- `BOT_TOKEN`: Telegram bot token from https://t.me/botfather. (optional)
+- `QUALITY`: Custom stream quality (high/medium/low) for the userbot in vc. Default: `high`
+- `PREFIX`: Bot commad prefixes (separate multiple prefix with space). Eg: `! /`
 - `LANGUAGE`: An [available](#languages) bot language (can change it anytime). Default: `en`
+- `STREAM_MODE`: An stream mode like audio or video (can change it anytime). Default: `audio`
+- `ADMINS_ONLY`: Put `True` if you want to make /play commands only for admins. Default: `False`
+- `SPOTIFY_CLIENT_ID`: Spotify client id get it from [here](https://developer.spotify.com/dashboard/applications). (optional)
+- `SPOTIFY_CLIENT_SECRET`: Spotify client secret get it from [here](https://developer.spotify.com/dashboard/applications). (optional)
+
 
 ## 📄 <a name="commands"></a>Commands
 
@@ -107,7 +113,7 @@ Command | Description
 • !mode / !switch | Switch the stream mode (audio/video)
 • !p / !play [song name or youtube link] | Play a song in vc, if already playing add to queue
 • !radio / !stream [radio url or stream link] | Play a live stream in vc, if already playing add to queue
-• !pl / !playlist [youtube playlist link] | Play the whole youtube playlist at once
+• !pl / !playlist [playlist link] | Play the whole youtube playlist at once
 • !skip / !next | Skip to the next song
 • !m / !mute | Mute the current stream
 • !um / !unmute | Unmute the muted stream
@@ -120,6 +126,7 @@ Command | Description
 • !ip / !import | Import queue from exported file
 • !ep / !export | Export the queue for import in future
 • !stop / !leave | Leave from vc and clear the queue
+• !update / !restart | Update and restart your music player
 
 ## 🗣 <a name="languages"></a>Languages
 
