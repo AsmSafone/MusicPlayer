@@ -42,7 +42,6 @@ class Song:
         elif isinstance(link, dict):
             self.parsed: bool = True
             self._retries: int = 0
-            self.title: str = "Custom Stream"
             self.duration: str = "N/A"
             self.headers: dict = None
             self.thumb: str = "https://telegra.ph/file/820cac7cb7b1a025542e2.jpg"

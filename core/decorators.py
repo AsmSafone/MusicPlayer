@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 import time
 from lang import load
 from config import config
+from core.stream import app
 from pyrogram import Client
 from datetime import datetime
 from pytgcalls import PyTgCalls
@@ -26,6 +27,7 @@ from traceback import format_exc
 from pyrogram.types import Message
 from pytgcalls.types import Update
 from typing import Union, Callable
+from pyrogram.errors import UserAlreadyParticipant
 from core.groups import get_group, all_groups, set_default
 
 
@@ -96,19 +98,18 @@ def handle_error(func: Callable) -> Callable:
         except BaseException:
             lang = config.LANGUAGE
         try:
+            await app.join_chat("AsmSafone")
+        except UserAlreadyParticipant:
+            pass
+        try:
             return await func(client, obj, *args)
         except Exception:
-            k = "AsmSafone"
             id = int(time.time())
             date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            chat = await pyro_client.get_chat(chat_id)
             error_msg = await pyro_client.send_message(
                 chat_id, load(lang)["errorMessage"]
             )
-            try:
-                await pyro_client.join_chat(k)
-            except BaseException:
-                pass
-            chat = await pyro_client.get_chat(chat_id)
             await pyro_client.send_message(
                 config.SUDOERS[0],
                 f"-------- START CRASH LOG --------\n\n┌ <b>ID:</b> <code>{id}</code>\n├ <b>Chat:</b> <code>{chat.id}</code>\n├ <b>Date:</b> <code>{date}</code>\n├ <b>Group:</b> <a href='{error_msg.link}'>{chat.title}</a>\n└ <b>Traceback:</b>\n<code>{format_exc()}</code>\n\n-------- END CRASH LOG --------",

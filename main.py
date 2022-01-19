@@ -28,10 +28,10 @@ from pytgcalls.exceptions import GroupCallNotFound, NoActiveGroupCall
 from pytgcalls.types.stream import StreamAudioEnded, StreamVideoEnded
 from core.decorators import language, register, only_admins, handle_error
 from core import (
-    app, safone, search, is_sudo, is_admin, get_group, get_queue, pytgcalls,
-    set_group, set_title, all_groups, clear_queue, skip_stream, extract_args,
-    start_stream, shuffle_queue, delete_messages, get_spotify_playlist,
-    get_youtube_playlist)
+    app, ydl, safone, search, is_sudo, is_admin, get_group, get_queue,
+    pytgcalls, set_group, set_title, all_groups, clear_queue, skip_stream,
+    check_yt_url, extract_args, start_stream, shuffle_queue, delete_messages,
+    get_spotify_playlist, get_youtube_playlist)
 
 
 REPO = """
@@ -53,7 +53,7 @@ else:
 
 
 @client.on_message(
-    filters.command("repo", config.PREFIXES) & ~filters.private & ~filters.edited
+    filters.command("repo", config.PREFIXES) & ~filters.bot & ~filters.edited
 )
 @handle_error
 async def repo(_, message: Message):
@@ -61,7 +61,7 @@ async def repo(_, message: Message):
 
 
 @client.on_message(
-    filters.command("ping", config.PREFIXES) & ~filters.private & ~filters.edited
+    filters.command("ping", config.PREFIXES) & ~filters.bot & ~filters.edited
 )
 @handle_error
 async def ping(_, message: Message):
@@ -69,7 +69,16 @@ async def ping(_, message: Message):
 
 
 @client.on_message(
-    filters.command(["start", "help"], config.PREFIXES) & ~filters.bot & ~filters.edited
+    filters.command("start", config.PREFIXES) & ~filters.bot & ~filters.edited
+)
+@language
+@handle_error
+async def start(_, message: Message, lang):
+    await message.reply_text(lang["startText"] % message.from_user.mention)
+
+
+@client.on_message(
+    filters.command("help", config.PREFIXES) & ~filters.private & ~filters.edited
 )
 @language
 @handle_error
@@ -135,7 +144,20 @@ async def live_stream(_, message: Message, lang):
     if " " in args and args.count(" ") == 1 and args[-5:] == "parse":
         song = Song({"source": args.split(" ")[0], "parsed": False}, message)
     else:
-        song = Song({"source": args, "remote": args}, message)
+        is_yt_url, url = check_yt_url(args)
+        if is_yt_url:
+            meta = ydl.extract_info(url, download=False)
+            formats = meta.get("formats", [meta])
+            for f in formats:
+                ytstreamlink = f["url"]
+            link = ytstreamlink
+            song = Song(
+                {"title": "YouTube Stream", "source": link, "remote": link}, message
+            )
+        else:
+            song = Song(
+                {"title": "Live Stream", "source": args, "remote": args}, message
+            )
     ok, status = await song.parse()
     if not ok:
         raise Exception(status)
@@ -365,7 +387,7 @@ async def switch_mode(_, message: Message, lang):
 
 
 @client.on_message(
-    filters.command(["admin", "adminsonly"], config.PREFIXES)
+    filters.command(["admins", "adminsonly"], config.PREFIXES)
     & ~filters.private
     & ~filters.edited
 )
@@ -574,7 +596,6 @@ async def update_restart(_, message: Message, lang):
 
 
 @pytgcalls.on_stream_end()
-@register
 @language
 @handle_error
 async def stream_end(_, update: Update, lang):
@@ -605,7 +626,6 @@ async def stream_end(_, update: Update, lang):
 
 
 @pytgcalls.on_closed_voice_chat()
-@register
 @handle_error
 async def closed_vc(_, chat_id: int):
     if chat_id not in all_groups():
@@ -620,7 +640,6 @@ async def closed_vc(_, chat_id: int):
 
 
 @pytgcalls.on_kicked()
-@register
 @handle_error
 async def kicked_vc(_, chat_id: int):
     if chat_id not in all_groups():
@@ -635,7 +654,6 @@ async def kicked_vc(_, chat_id: int):
 
 
 @pytgcalls.on_left()
-@register
 @handle_error
 async def left_vc(_, chat_id: int):
     if chat_id not in all_groups():

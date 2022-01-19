@@ -80,7 +80,10 @@ async def search(message: Message) -> Optional[Song]:
                 progress_args=("Downloading...", lel, time.time()),
             )
             await lel.delete()
-            return Song({"source": reply.link, "remote": file}, message)
+            return Song(
+                {"title": media.file_name, "source": reply.link, "remote": file},
+                message,
+            )
     else:
         query = extract_args(message.text)
     if query == "":

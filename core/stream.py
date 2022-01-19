@@ -21,6 +21,7 @@ from typing import Union
 from config import config
 from core.song import Song
 from pyrogram import Client
+from yt_dlp import YoutubeDL
 from core.funcs import generate_cover
 from pytgcalls import PyTgCalls, StreamType
 from core.groups import get_group, set_title
@@ -34,6 +35,12 @@ from pytgcalls.types.input_stream.quality import (
 
 
 safone = {}
+ydl_opts = {
+    "quiet": True,
+    "geo_bypass": True,
+    "nocheckcertificate": True,
+}
+ydl = YoutubeDL(ydl_opts)
 app = Client(config.SESSION, api_id=config.API_ID, api_hash=config.API_HASH)
 pytgcalls = PyTgCalls(app)
 
