@@ -60,14 +60,17 @@ def language(func: Callable) -> Callable:
 
 def only_admins(func: Callable) -> Callable:
     async def decorator(client: Client, message: Message, *args):
-        if (
+        if message.from_user and (
             message.from_user.id
             in [
                 admin.user.id
                 for admin in (await message.chat.get_members(filter="administrators"))
             ]
-            or message.from_user.id in config.SUDOERS
         ):
+            return await func(client, message, *args)
+        elif message.from_user and message.from_user.id in config.SUDOERS:
+            return await func(client, message, *args)
+        elif message.sender_chat and message.sender_chat.id == message.chat.id:
             return await func(client, message, *args)
 
     return decorator

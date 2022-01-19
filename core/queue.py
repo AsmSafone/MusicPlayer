@@ -58,7 +58,7 @@ class Queue(asyncio.Queue):
         string = ""
         for x, item in enumerate(queue):
             if x < 10:
-                string += f"**{x+1}. [{item.title}]({item.source})** \n- Requested By: {item.requested_by.mention}\n"
+                string += f"**{x+1}. [{item.title}]({item.source})** \n- Requested By: {item.requested_by.mention if item.requested_by else item.request_msg.sender_chat.title}\n"
             else:
                 string += f"`\n...{len(queue)-10}`"
                 return string
