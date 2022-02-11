@@ -150,7 +150,7 @@ async def progress_bar(current, total, ud_type, msg, start):
 def humanbytes(size):
     if not size:
         return ""
-    power = 2 ** 10
+    power = 2**10
     n = 0
     Dic_powerN = {0: " ", 1: "K", 2: "M", 3: "G", 4: "T"}
     while size > power:
