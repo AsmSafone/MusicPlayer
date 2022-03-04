@@ -599,30 +599,33 @@ async def update_restart(_, message: Message, lang):
 @language
 @handle_error
 async def stream_end(_, update: Update, lang):
-    if isinstance(update, StreamAudioEnded) or isinstance(update, StreamVideoEnded):
-        chat_id = update.chat_id
-        group = get_group(chat_id)
-        if group["loop"]:
-            await skip_stream(group["now_playing"], lang)
+    if not isinstance(update, StreamAudioEnded) and not isinstance(
+        update, StreamVideoEnded
+    ):
+        return
+    chat_id = update.chat_id
+    group = get_group(chat_id)
+    if group["loop"]:
+        await skip_stream(group["now_playing"], lang)
+    else:
+        queue = get_queue(chat_id)
+        if len(queue) > 0:
+            next_song = await queue.get()
+            if not next_song.parsed:
+                ok, status = await next_song.parse()
+                if not ok:
+                    raise Exception(status)
+            set_group(chat_id, now_playing=next_song)
+            await skip_stream(next_song, lang)
         else:
-            queue = get_queue(chat_id)
-            if len(queue) > 0:
-                next_song = await queue.get()
-                if not next_song.parsed:
-                    ok, status = await next_song.parse()
-                    if not ok:
-                        raise Exception(status)
-                set_group(chat_id, now_playing=next_song)
-                await skip_stream(next_song, lang)
-            else:
-                if safone.get(chat_id) is not None:
-                    try:
-                        await safone[chat_id].delete()
-                    except BaseException:
-                        pass
-                await set_title(chat_id, "", client=app)
-                set_group(chat_id, is_playing=False, now_playing=None)
-                await pytgcalls.leave_group_call(chat_id)
+            if safone.get(chat_id) is not None:
+                try:
+                    await safone[chat_id].delete()
+                except BaseException:
+                    pass
+            await set_title(chat_id, "", client=app)
+            set_group(chat_id, is_playing=False, now_playing=None)
+            await pytgcalls.leave_group_call(chat_id)
 
 
 @pytgcalls.on_closed_voice_chat()
