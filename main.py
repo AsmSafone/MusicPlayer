@@ -53,7 +53,7 @@ else:
 
 
 @client.on_message(
-    filters.command("repo", config.PREFIXES) & ~filters.bot & ~filters.edited
+    filters.command("re!po", config.PREFIXES) & ~filters.bot & ~filters.edited
 )
 @handle_error
 async def repo(_, message: Message):
