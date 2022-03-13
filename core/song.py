@@ -1,5 +1,5 @@
 """
-Music Player, Telegram Voice Chat Bot
+Music Playerr, Telegram Voice Chat Bot
 Copyright (c) 2021-present Asm Safone <https://github.com/AsmSafone>
 
 This program is free software: you can redistribute it and/or modify
