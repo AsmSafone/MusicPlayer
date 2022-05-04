@@ -47,7 +47,7 @@ except BaseException:
     print(
         "WARNING: SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET is not set."
         "Bot will work fine but playing songs with spotify playlist won't work."
-        "Check your configs or .env file if you want to add them or ask @AsmSupport!"
+        "Check your configs or .env file if you want to add them or ask @shinyhunts or @mewtwolover!"
     )
     config.SPOTIFY = False
 
