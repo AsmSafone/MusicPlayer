@@ -91,10 +91,7 @@ class Song:
             response = await session.get(path, timeout=5, headers=headers)
             response.close()
             await session.close()
-            if response.status == 200:
-                return True
-            else:
-                return False
+            return response.status == 200
         except BaseException:
             return False
 

@@ -66,8 +66,7 @@ themes = [
 
 async def search(message: Message) -> Optional[Song]:
     query = ""
-    reply = message.reply_to_message
-    if reply:
+    if reply := message.reply_to_message:
         if reply.text:
             query = reply.text
         elif reply.media:
@@ -120,10 +119,7 @@ def check_yt_url(text: str) -> Tuple[bool, Optional[str]]:
 
 
 def extract_args(text: str) -> str:
-    if " " not in text:
-        return ""
-    else:
-        return text.split(" ", 1)[1]
+    return "" if " " not in text else text.split(" ", 1)[1]
 
 
 async def progress_bar(current, total, ud_type, msg, start):
@@ -136,9 +132,10 @@ async def progress_bar(current, total, ud_type, msg, start):
         time_to_complete = round(((total - current) / speed)) * 1000
         time_to_complete = TimeFormatter(time_to_complete)
         progressbar = "[{0}{1}]".format(
-            "".join(["▰" for i in range(math.floor(percentage / 10))]),
-            "".join(["▱" for i in range(10 - math.floor(percentage / 10))]),
+            "".join(["▰" for _ in range(math.floor(percentage / 10))]),
+            "".join(["▱" for _ in range(10 - math.floor(percentage / 10))]),
         )
+
         current_message = f"**Downloading...** `{round(percentage, 2)}%`\n`{progressbar}`\n**Done**: `{humanbytes(current)}` | **Total**: `{humanbytes(total)}`\n**Speed**: `{humanbytes(speed)}/s` | **ETA**: `{time_to_complete}`"
         if msg:
             try:
@@ -156,7 +153,7 @@ def humanbytes(size):
     while size > power:
         size /= power
         n += 1
-    return str(round(size, 2)) + " " + Dic_powerN[n] + "B"
+    return f"{str(round(size, 2))} {Dic_powerN[n]}B"
 
 
 async def delete_messages(messages):
@@ -170,17 +167,18 @@ async def delete_messages(messages):
 
 
 def TimeFormatter(milliseconds: int) -> str:
-    seconds, milliseconds = divmod(int(milliseconds), 1000)
+    seconds, milliseconds = divmod(milliseconds, 1000)
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
     tmp = (
-        ((str(days) + " Days, ") if days else "")
-        + ((str(hours) + " Hours, ") if hours else "")
-        + ((str(minutes) + " Min, ") if minutes else "")
-        + ((str(seconds) + " Sec, ") if seconds else "")
-        + ((str(milliseconds) + " MS, ") if milliseconds else "")
+        (f"{str(days)} Days, " if days else "")
+        + (f"{str(hours)} Hours, " if hours else "")
+        + (f"{str(minutes)} Min, " if minutes else "")
+        + (f"{str(seconds)} Sec, " if seconds else "")
+        + (f"{str(milliseconds)} MS, " if milliseconds else "")
     )
+
     return tmp[:-2]
 
 
@@ -189,8 +187,7 @@ def changeImageSize(maxWidth, maxHeight, image):
     heightRatio = maxHeight / image.size[1]
     newWidth = int(widthRatio * image.size[0])
     newHeight = int(heightRatio * image.size[1])
-    newImage = image.resize((newWidth, newHeight))
-    return newImage
+    return image.resize((newWidth, newHeight))
 
 
 async def generate_cover(title, ctitle, chatid, thumbnail):
@@ -233,8 +230,7 @@ async def generate_cover(title, ctitle, chatid, thumbnail):
     img.save(f"final{chatid}.png")
     os.remove(f"temp{chatid}.png")
     os.remove(f"thumb{chatid}.png")
-    final = f"final{chatid}.png"
-    return final
+    return f"final{chatid}.png"
 
 
 async def special_to_normal(ctitle):
@@ -263,8 +259,7 @@ async def special_to_normal(ctitle):
     font31L = list("𝚊𝚋𝚌𝚍𝚎𝚏𝚐𝚑𝚒𝚓𝚔𝚕𝚖𝚗𝚘𝚙𝚚𝚛𝚜𝚝𝚞𝚟𝚠𝚡𝚢𝚣")
     normal = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
     normalL = list("abcdefghijklmnopqrstuvwxyz")
-    cout = 0
-    for XCB in font1:
+    for cout, XCB in enumerate(font1):
         string = string.replace(font1[cout], normal[cout])
         string = string.replace(font2[cout], normal[cout])
         string = string.replace(font3[cout], normal[cout])
@@ -287,7 +282,6 @@ async def special_to_normal(ctitle):
         string = string.replace(font29L[cout], normalL[cout])
         string = string.replace(font30L[cout], normalL[cout])
         string = string.replace(font31L[cout], normalL[cout])
-        cout += 1
     return string
 
 
