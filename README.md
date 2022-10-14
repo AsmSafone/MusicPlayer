@@ -77,6 +77,19 @@ $ cp sample.env .env
 # < edit .env with your own values >
 $ python3 main.py
 ```
+Or you can use this One-Liner to save your time :
+
+```
+git clone https://github.com/AsmSafone/MusicPlayer && cd MusicPlayer && sudo apt install git curl python3-pip ffmpeg -y && pip3 install -U pip && curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash - && sudo apt install -y nodejs && sudo apt install build-essential && sudo npm install pm2@latest -g && pip3 install -U -r requirements.txt
+```
+Make sure to edit the .env file accordingly,
+```
+cp sample.env .env
+```
+Run it using,
+```
+python3 main.py
+```
 
 - Docker Build Method
 ```bash
