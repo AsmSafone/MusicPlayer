@@ -145,6 +145,8 @@ Command | Description
 
 ```text
 en    English
+de    German
+te    Telegu
 ```
 
 ## 💜 <a name="contribute"></a>Contribute
