@@ -4,6 +4,7 @@ spotipy
 aiohttp
 aiofiles
 pyrogram==1.4.16
+testresources
 tgcrypto
 python-dotenv
 py-tgcalls==0.8.2
