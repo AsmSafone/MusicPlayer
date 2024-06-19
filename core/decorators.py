@@ -65,7 +65,9 @@ def only_admins(func: Callable) -> Callable:
             in [
                 admin.user.id
                 async for admin in (
-                    await message.chat.get_members(filter=enums.ChatMembersFilter.ADMINISTRATORS)
+                    await message.chat.get_members(
+                        filter=enums.ChatMembersFilter.ADMINISTRATORS
+                    )
                 )
             ]
         ):

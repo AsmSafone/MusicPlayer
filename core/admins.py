@@ -33,7 +33,7 @@ async def is_admin(message: Message):
         user = await message.chat.get_member(message.from_user.id)
         if user.status in [
             enums.ChatMemberStatus.OWNER,
-            enums.ChatMemberStatus.ADMINISTRATOR
+            enums.ChatMemberStatus.ADMINISTRATOR,
         ]:
             return True
         elif message.from_user.id in config.SUDOERS:
