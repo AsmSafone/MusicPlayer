@@ -1,11 +1,11 @@
+yt-dlp
 pytube
 pillow
 spotipy
 aiohttp
 aiofiles
-pyrogram==1.4.16
 tgcrypto
+py-tgcalls
 python-dotenv
-py-tgcalls==0.8.2
 youtube-search-python
-git+https://github.com/asmsafone/downloader
+https://github.com/PyrogramMod/PyrogramMod/archive/refs/heads/main.zip

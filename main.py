@@ -22,15 +22,16 @@ import shutil
 from config import config
 from core.song import Song
 from pyrogram.types import Message
-from pytgcalls.types import Update
+from pytgcalls import filters as fl
 from pyrogram import Client, filters
+from pytgcalls.types import Update, ChatUpdate
 from pytgcalls.exceptions import GroupCallNotFound, NoActiveGroupCall
 from pytgcalls.types.stream import StreamAudioEnded, StreamVideoEnded
 from core.decorators import language, register, only_admins, handle_error
 from core import (
     app, ydl, safone, search, is_sudo, is_admin, get_group, get_queue,
-    pytgcalls, set_group, set_title, all_groups, clear_queue, skip_stream,
-    check_yt_url, extract_args, start_stream, shuffle_queue, delete_messages,
+    pytgcalls, set_group, set_title, all_groups, clear_queue, check_yt_url, 
+    extract_args, start_stream, shuffle_queue, delete_messages,
     get_spotify_playlist, get_youtube_playlist)
 
 
@@ -53,7 +54,7 @@ else:
 
 
 @client.on_message(
-    filters.command("repo", config.PREFIXES) & ~filters.bot & ~filters.edited
+    filters.command("repo", config.PREFIXES) & ~filters.bot
 )
 @handle_error
 async def repo(_, message: Message):
@@ -61,7 +62,7 @@ async def repo(_, message: Message):
 
 
 @client.on_message(
-    filters.command("ping", config.PREFIXES) & ~filters.bot & ~filters.edited
+    filters.command("ping", config.PREFIXES) & ~filters.bot
 )
 @handle_error
 async def ping(_, message: Message):
@@ -69,7 +70,7 @@ async def ping(_, message: Message):
 
 
 @client.on_message(
-    filters.command("start", config.PREFIXES) & ~filters.bot & ~filters.edited
+    filters.command("start", config.PREFIXES) & ~filters.bot
 )
 @language
 @handle_error
@@ -78,7 +79,7 @@ async def start(_, message: Message, lang):
 
 
 @client.on_message(
-    filters.command("help", config.PREFIXES) & ~filters.private & ~filters.edited
+    filters.command("help", config.PREFIXES) & ~filters.private
 )
 @language
 @handle_error
@@ -87,7 +88,7 @@ async def help(_, message: Message, lang):
 
 
 @client.on_message(
-    filters.command(["p", "play"], config.PREFIXES) & ~filters.private & ~filters.edited
+    filters.command(["p", "play"], config.PREFIXES) & ~filters.private
 )
 @register
 @language
@@ -124,7 +125,6 @@ async def play_stream(_, message: Message, lang):
 @client.on_message(
     filters.command(["radio", "stream"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -178,7 +178,6 @@ async def live_stream(_, message: Message, lang):
 @client.on_message(
     filters.command(["skip", "next"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -188,7 +187,7 @@ async def skip_track(_, message: Message, lang):
     chat_id = message.chat.id
     group = get_group(chat_id)
     if group["loop"]:
-        await skip_stream(group["now_playing"], lang)
+        await start_stream(group["now_playing"], lang)
     else:
         queue = get_queue(chat_id)
         if len(queue) > 0:
@@ -198,13 +197,13 @@ async def skip_track(_, message: Message, lang):
                 if not ok:
                     raise Exception(status)
             set_group(chat_id, now_playing=next_song)
-            await skip_stream(next_song, lang)
+            await start_stream(next_song, lang)
             await delete_messages([message])
         else:
             set_group(chat_id, is_playing=False, now_playing=None)
             await set_title(message, "")
             try:
-                await pytgcalls.leave_group_call(chat_id)
+                await pytgcalls.leave_call(chat_id)
                 k = await message.reply_text(lang["queueEmpty"])
             except (NoActiveGroupCall, GroupCallNotFound):
                 k = await message.reply_text(lang["notActive"])
@@ -212,7 +211,7 @@ async def skip_track(_, message: Message, lang):
 
 
 @client.on_message(
-    filters.command(["m", "mute"], config.PREFIXES) & ~filters.private & ~filters.edited
+    filters.command(["m", "mute"], config.PREFIXES) & ~filters.private
 )
 @register
 @language
@@ -231,7 +230,6 @@ async def mute_vc(_, message: Message, lang):
 @client.on_message(
     filters.command(["um", "unmute"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -250,7 +248,6 @@ async def unmute_vc(_, message: Message, lang):
 @client.on_message(
     filters.command(["ps", "pause"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -269,7 +266,6 @@ async def pause_vc(_, message: Message, lang):
 @client.on_message(
     filters.command(["rs", "resume"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -288,7 +284,6 @@ async def resume_vc(_, message: Message, lang):
 @client.on_message(
     filters.command(["stop", "leave"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -300,7 +295,7 @@ async def leave_vc(_, message: Message, lang):
     await set_title(message, "")
     clear_queue(chat_id)
     try:
-        await pytgcalls.leave_group_call(chat_id)
+        await pytgcalls.leave_call(chat_id)
         k = await message.reply_text(lang["leaveVC"])
     except (NoActiveGroupCall, GroupCallNotFound):
         k = await message.reply_text(lang["notActive"])
@@ -310,7 +305,6 @@ async def leave_vc(_, message: Message, lang):
 @client.on_message(
     filters.command(["list", "queue"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -328,7 +322,6 @@ async def queue_list(_, message: Message, lang):
 @client.on_message(
     filters.command(["mix", "shuffle"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -347,7 +340,6 @@ async def shuffle_list(_, message: Message, lang):
 @client.on_message(
     filters.command(["loop", "repeat"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -368,7 +360,6 @@ async def loop_stream(_, message: Message, lang):
 @client.on_message(
     filters.command(["mode", "switch"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -389,7 +380,6 @@ async def switch_mode(_, message: Message, lang):
 @client.on_message(
     filters.command(["admins", "adminsonly"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -410,7 +400,6 @@ async def admins_only(_, message: Message, lang):
 @client.on_message(
     filters.command(["lang", "language"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -438,7 +427,6 @@ async def set_lang(_, message: Message, lang):
 @client.on_message(
     filters.command(["ep", "export"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -465,7 +453,6 @@ async def export_queue(_, message: Message, lang):
 @client.on_message(
     filters.command(["ip", "import"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -515,7 +502,6 @@ async def import_queue(_, message: Message, lang):
 @client.on_message(
     filters.command(["pl", "playlist"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @register
 @language
@@ -574,7 +560,6 @@ async def import_playlist(_, message: Message, lang):
 @client.on_message(
     filters.command(["update", "restart"], config.PREFIXES)
     & ~filters.private
-    & ~filters.edited
 )
 @language
 @handle_error
@@ -587,7 +572,7 @@ async def update_restart(_, message: Message, lang):
     stats = await message.reply_text(lang["update"])
     for chat in chats:
         try:
-            await pytgcalls.leave_group_call(chat)
+            await pytgcalls.leave_call(chat)
         except (NoActiveGroupCall, GroupCallNotFound):
             pass
     await stats.edit_text(lang["restart"])
@@ -595,7 +580,7 @@ async def update_restart(_, message: Message, lang):
     os.system(f"kill -9 {os.getpid()} && bash startup.sh")
 
 
-@pytgcalls.on_stream_end()
+@pytgcalls.on_update(fl.stream_end)
 @language
 @handle_error
 async def stream_end(_, update: Update, lang):
@@ -603,7 +588,7 @@ async def stream_end(_, update: Update, lang):
         chat_id = update.chat_id
         group = get_group(chat_id)
         if group["loop"]:
-            await skip_stream(group["now_playing"], lang)
+            await start_stream(group["now_playing"], lang)
         else:
             queue = get_queue(chat_id)
             if len(queue) > 0:
@@ -613,7 +598,7 @@ async def stream_end(_, update: Update, lang):
                     if not ok:
                         raise Exception(status)
                 set_group(chat_id, now_playing=next_song)
-                await skip_stream(next_song, lang)
+                await start_stream(next_song, lang)
             else:
                 if safone.get(chat_id) is not None:
                     try:
@@ -622,40 +607,13 @@ async def stream_end(_, update: Update, lang):
                         pass
                 await set_title(chat_id, "", client=app)
                 set_group(chat_id, is_playing=False, now_playing=None)
-                await pytgcalls.leave_group_call(chat_id)
+                await pytgcalls.leave_call(chat_id)
 
 
-@pytgcalls.on_closed_voice_chat()
+@pytgcalls.on_update(fl.chat_update(ChatUpdate.Status.LEFT_CALL))
 @handle_error
-async def closed_vc(_, chat_id: int):
-    if chat_id not in all_groups():
-        if safone.get(chat_id) is not None:
-            try:
-                await safone[chat_id].delete()
-            except BaseException:
-                pass
-        await set_title(chat_id, "", client=app)
-        set_group(chat_id, now_playing=None, is_playing=False)
-        clear_queue(chat_id)
-
-
-@pytgcalls.on_kicked()
-@handle_error
-async def kicked_vc(_, chat_id: int):
-    if chat_id not in all_groups():
-        if safone.get(chat_id) is not None:
-            try:
-                await safone[chat_id].delete()
-            except BaseException:
-                pass
-        await set_title(chat_id, "", client=app)
-        set_group(chat_id, now_playing=None, is_playing=False)
-        clear_queue(chat_id)
-
-
-@pytgcalls.on_left()
-@handle_error
-async def left_vc(_, chat_id: int):
+async def closed_vc(_, update: Update):
+    chat_id = update.chat_id
     if chat_id not in all_groups():
         if safone.get(chat_id) is not None:
             try:

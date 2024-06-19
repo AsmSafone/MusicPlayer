@@ -1,4 +1,4 @@
-FROM nikolaik/python-nodejs:python3.9-nodejs16
+FROM python:latest
 
 # Updating Packages
 RUN apt update && apt upgrade -y
