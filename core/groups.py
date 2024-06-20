@@ -64,8 +64,8 @@ async def set_title(message_or_chat_id: Union[Message, int], title: str, **kw):
         chat_id = message_or_chat_id
     try:
         peer = await client.resolve_peer(chat_id)
-        chat = await client.send(GetFullChannel(channel=peer))
-        await client.send(EditGroupCallTitle(call=chat.full_chat.call, title=title))
+        chat = await client.invoke(GetFullChannel(channel=peer))
+        await client.invoke(EditGroupCallTitle(call=chat.full_chat.call, title=title))
     except BaseException:
         pass
 

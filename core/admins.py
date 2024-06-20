@@ -17,27 +17,29 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 """
 
 from config import config
+from pyrogram import enums
+from pyrogram.types import Message
 
 
-async def is_sudo(message):
+async def is_sudo(message: Message):
     if message.from_user and message.from_user.id in config.SUDOERS:
         return True
     else:
         return False
 
 
-async def is_admin(message):
-    if message.from_user and (
-        message.from_user.id
-        in [
-            admin.user.id
-            for admin in (await message.chat.get_members(filter="administrators"))
-        ]
-    ):
-        return True
-    elif message.from_user and message.from_user.id in config.SUDOERS:
-        return True
-    elif message.sender_chat and message.sender_chat.id == message.chat.id:
-        return True
+async def is_admin(message: Message):
+    if message.from_user:
+        user = await message.chat.get_member(message.from_user.id)
+        if user.status in [
+            enums.ChatMemberStatus.OWNER,
+            enums.ChatMemberStatus.ADMINISTRATOR,
+        ]:
+            return True
+        elif message.from_user.id in config.SUDOERS:
+            return True
+    elif message.sender_chat:
+        if message.sender_chat.id == message.chat.id:
+            return True
     else:
         return False
