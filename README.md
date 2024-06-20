@@ -55,7 +55,7 @@ thanks to the translators.
 
 ## 🚀 <a name="deploy"></a>Deploy
 
-[![Deploy on Heroku](https://www.herokucdn.com/deploy/button.svg)](https://deploy.safone.tech)
+[![Deploy on Heroku](https://www.herokucdn.com/deploy/button.svg)](https://deploy.safone.dev)
 
 Note: `First Fork The Repo Then Click On Deploy To Heroku Button!`
 
