@@ -25,9 +25,9 @@ from pyrogram.types import Message
 from pytgcalls import filters as fl
 from pyrogram import Client, filters
 from pytgcalls.types import Update, ChatUpdate
-from pytgcalls.exceptions import GroupCallNotFound, NoActiveGroupCall
 from pytgcalls.types.stream import StreamAudioEnded, StreamVideoEnded
 from core.decorators import language, register, only_admins, handle_error
+from pytgcalls.exceptions import GroupCallNotFound, NoActiveGroupCall, NotInCallError
 from core import (
     app, ytdl, safone, search, is_sudo, is_admin, get_group, get_queue,
     pytgcalls, set_group, set_title, all_groups, clear_queue, check_yt_url,
@@ -37,6 +37,7 @@ from core import (
 
 REPO = """
 🤖 **Music Player**
+
 - Repo: [GitHub](https://github.com/AsmSafone/MusicPlayer)
 - License: AGPL-3.0-or-later
 """
@@ -63,7 +64,7 @@ async def repo(_, message: Message):
 @client.on_message(filters.command("ping", config.PREFIXES) & ~filters.bot)
 @handle_error
 async def ping(_, message: Message):
-    await message.reply_text(f"🤖 **Pong!**\n`{await pytgcalls.ping} ms`")
+    await message.reply_text(f"🤖 **Pong!**\n`{pytgcalls.ping} ms`")
 
 
 @client.on_message(filters.command("start", config.PREFIXES) & ~filters.bot)
@@ -73,7 +74,7 @@ async def start(_, message: Message, lang):
     await message.reply_text(lang["startText"] % message.from_user.mention)
 
 
-@client.on_message(filters.command("help", config.PREFIXES) & ~filters.private)
+@client.on_message(filters.command("help", config.PREFIXES) & ~filters.bot)
 @language
 @handle_error
 async def help(_, message: Message, lang):
@@ -194,7 +195,7 @@ async def skip_track(_, message: Message, lang):
             try:
                 await pytgcalls.leave_call(chat_id)
                 k = await message.reply_text(lang["queueEmpty"])
-            except (NoActiveGroupCall, GroupCallNotFound):
+            except (NoActiveGroupCall, GroupCallNotFound, NotInCallError):
                 k = await message.reply_text(lang["notActive"])
             await delete_messages([message, k])
 
@@ -209,7 +210,7 @@ async def mute_vc(_, message: Message, lang):
     try:
         await pytgcalls.mute_stream(chat_id)
         k = await message.reply_text(lang["muted"])
-    except (NoActiveGroupCall, GroupCallNotFound):
+    except (NoActiveGroupCall, GroupCallNotFound, NotInCallError):
         k = await message.reply_text(lang["notActive"])
     await delete_messages([message, k])
 
@@ -226,7 +227,7 @@ async def unmute_vc(_, message: Message, lang):
     try:
         await pytgcalls.unmute_stream(chat_id)
         k = await message.reply_text(lang["unmuted"])
-    except (NoActiveGroupCall, GroupCallNotFound):
+    except (NoActiveGroupCall, GroupCallNotFound, NotInCallError):
         k = await message.reply_text(lang["notActive"])
     await delete_messages([message, k])
 
@@ -241,7 +242,7 @@ async def pause_vc(_, message: Message, lang):
     try:
         await pytgcalls.pause_stream(chat_id)
         k = await message.reply_text(lang["paused"])
-    except (NoActiveGroupCall, GroupCallNotFound):
+    except (NoActiveGroupCall, GroupCallNotFound, NotInCallError):
         k = await message.reply_text(lang["notActive"])
     await delete_messages([message, k])
 
@@ -258,7 +259,7 @@ async def resume_vc(_, message: Message, lang):
     try:
         await pytgcalls.resume_stream(chat_id)
         k = await message.reply_text(lang["resumed"])
-    except (NoActiveGroupCall, GroupCallNotFound):
+    except (NoActiveGroupCall, GroupCallNotFound, NotInCallError):
         k = await message.reply_text(lang["notActive"])
     await delete_messages([message, k])
 
@@ -278,7 +279,7 @@ async def leave_vc(_, message: Message, lang):
     try:
         await pytgcalls.leave_call(chat_id)
         k = await message.reply_text(lang["leaveVC"])
-    except (NoActiveGroupCall, GroupCallNotFound):
+    except (NoActiveGroupCall, GroupCallNotFound, NotInCallError):
         k = await message.reply_text(lang["notActive"])
     await delete_messages([message, k])
 
@@ -544,7 +545,7 @@ async def update_restart(_, message: Message, lang):
     for chat in chats:
         try:
             await pytgcalls.leave_call(chat)
-        except (NoActiveGroupCall, GroupCallNotFound):
+        except (NoActiveGroupCall, GroupCallNotFound, NotInCallError):
             pass
     await stats.edit_text(lang["restart"])
     shutil.rmtree("downloads", ignore_errors=True)
