@@ -82,7 +82,11 @@ async def search(message: Message) -> Optional[Song]:
             )
             await lel.delete()
             return Song(
-                {"title": media.file_name, "source": reply.link, "remote": file},
+                {
+                    "title": media.file_name or "N/A",
+                    "source": reply.link,
+                    "remote": file,
+                },
                 message,
             )
     else:

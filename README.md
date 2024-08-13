@@ -140,9 +140,18 @@ Command | Description
 ## 🗣 <a name="languages"></a>Languages
 
 ```text
-en    English
+ar    Arabic
+bn    Bengali
+cn    Chinese
 de    German
+en    English
+fr    French
+hi    Hindi
+ja    Japanese
+nl    Dutch
+ru    Russian
 te    Telegu
+tr    Turkish
 ```
 
 ## 💜 <a name="contribute"></a>Contribute
