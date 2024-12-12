@@ -20,4 +20,6 @@ import json
 
 
 def load(lang):
+    if ":" in lang:
+        lang = lang.split(":")[1]
     return json.load(open(f"./lang/{lang}.json", "r"))
