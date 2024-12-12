@@ -17,9 +17,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 """
 
 import json
-
+import os
 
 def load(lang):
     if ":" in lang:
         lang = lang.split(":")[1]
+    if not os.path.exists(f"./lang/{lang}.json"):
+        lang = "en"
     return json.load(open(f"./lang/{lang}.json", "r"))
