@@ -32,7 +32,7 @@ from spotipy import Spotify
 from core.groups import get_group
 from pyrogram.types import Message
 from PIL import Image, ImageDraw, ImageFont
-from youtubesearchpython import VideosSearch
+from py_yt import VideosSearch
 from spotipy.oauth2 import SpotifyClientCredentials
 from typing import List, Tuple, Optional, AsyncIterator
 

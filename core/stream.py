@@ -28,7 +28,7 @@ from pytgcalls.types.stream import MediaStream
 from pyrogram.raw.types import InputPeerChannel
 from pytgcalls.types import AudioQuality, VideoQuality
 from pyrogram.raw.functions.phone import CreateGroupCall
-from pytgcalls.exceptions import GroupCallNotFound, NoActiveGroupCall
+from pytgcalls.exceptions import NoActiveGroupCall
 
 
 safone = {}
@@ -61,7 +61,7 @@ async def start_stream(song: Song, lang):
             chat.id,
             get_quality(song),
         )
-    except (NoActiveGroupCall, GroupCallNotFound):
+    except NoActiveGroupCall:
         peer = await app.resolve_peer(chat.id)
         await app.invoke(
             CreateGroupCall(

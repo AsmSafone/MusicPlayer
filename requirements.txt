@@ -7,5 +7,5 @@ aiofiles
 tgcrypto
 py-tgcalls
 python-dotenv
-youtube-search-python
+py-yt-search
 https://github.com/PyrogramMod/PyrogramMod/archive/refs/heads/main.zip
