@@ -241,7 +241,7 @@ async def unmute_vc(_, message: Message, lang):
 async def pause_vc(_, message: Message, lang):
     chat_id = message.chat.id
     try:
-        await pytgcalls.pause_stream(chat_id)
+        await pytgcalls.pause(chat_id)
         k = await message.reply_text(lang["paused"])
     except (NoActiveGroupCall, NotInCallError):
         k = await message.reply_text(lang["notActive"])
@@ -258,7 +258,7 @@ async def pause_vc(_, message: Message, lang):
 async def resume_vc(_, message: Message, lang):
     chat_id = message.chat.id
     try:
-        await pytgcalls.resume_stream(chat_id)
+        await pytgcalls.resume(chat_id)
         k = await message.reply_text(lang["resumed"])
     except (NoActiveGroupCall, NotInCallError):
         k = await message.reply_text(lang["notActive"])
