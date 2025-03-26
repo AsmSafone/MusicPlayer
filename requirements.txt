@@ -1,11 +1,11 @@
-yt-dlp
+yt-dlp~=2025.3.26
 pytube
 pillow
 spotipy
 aiohttp
 aiofiles
 tgcrypto
-py-tgcalls
+py-tgcalls~=2.1.0
 python-dotenv
-py-yt-search
+https://github.com/KSKOP69/youtube-search-python/archive/ksk.zip
 https://github.com/PyrogramMod/PyrogramMod/archive/refs/heads/main.zip

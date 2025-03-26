@@ -209,7 +209,7 @@ async def skip_track(_, message: Message, lang):
 async def mute_vc(_, message: Message, lang):
     chat_id = message.chat.id
     try:
-        await pytgcalls.mute_stream(chat_id)
+        await pytgcalls.mute(chat_id)
         k = await message.reply_text(lang["muted"])
     except (NoActiveGroupCall, NotInCallError):
         k = await message.reply_text(lang["notActive"])
@@ -226,7 +226,7 @@ async def mute_vc(_, message: Message, lang):
 async def unmute_vc(_, message: Message, lang):
     chat_id = message.chat.id
     try:
-        await pytgcalls.unmute_stream(chat_id)
+        await pytgcalls.unmute(chat_id)
         k = await message.reply_text(lang["unmuted"])
     except (NoActiveGroupCall, NotInCallError):
         k = await message.reply_text(lang["notActive"])
@@ -557,7 +557,7 @@ async def update_restart(_, message: Message, lang):
 @language
 @handle_error
 async def stream_end(_, update: StreamEnded, lang):
-    if update.stream_type == StreamEnded.Type.AUDIO or update.stream_type == StreamEnded.Type.VIDEO:
+    if update.stream_type == StreamEnded.Type.AUDIO:
         chat_id = update.chat_id
         group = get_group(chat_id)
         if group["loop"]:
