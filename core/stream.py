@@ -24,9 +24,8 @@ from yt_dlp import YoutubeDL
 from pytgcalls import PyTgCalls
 from core.funcs import generate_cover
 from core.groups import get_group, set_title
-from pytgcalls.types.stream import MediaStream
+from pytgcalls.types import MediaStream, AudioQuality, VideoQuality
 from pyrogram.raw.types import InputPeerChannel
-from pytgcalls.types import AudioQuality, VideoQuality
 from pyrogram.raw.functions.phone import CreateGroupCall
 from pytgcalls.exceptions import NoActiveGroupCall
 

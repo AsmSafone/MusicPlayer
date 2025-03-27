@@ -24,8 +24,7 @@ from core.song import Song
 from pyrogram.types import Message
 from pytgcalls import filters as fl
 from pyrogram import Client, filters
-from pytgcalls.types import ChatUpdate
-from pytgcalls.types.stream import StreamEnded
+from pytgcalls.types import ChatUpdate, StreamEnded
 from core.decorators import language, register, only_admins, handle_error
 from pytgcalls.exceptions import (
     NotInCallError, NoActiveGroupCall)
@@ -557,7 +556,7 @@ async def update_restart(_, message: Message, lang):
 @language
 @handle_error
 async def stream_end(_, update: StreamEnded, lang):
-    if update.stream_type == StreamEnded.Type.AUDIO:
+    if update.stream_type in [StreamEnded.Type.AUDIO]:
         chat_id = update.chat_id
         group = get_group(chat_id)
         if group["loop"]:
