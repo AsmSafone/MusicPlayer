@@ -56,7 +56,7 @@ class Song:
         if self._retries >= 5:
             return (False, "MAX_RETRY_LIMIT_REACHED")
         process = await asyncio.create_subprocess_shell(
-            f"yt-dlp --print-json --skip-download -f best {quote(self.source)}",
+            f"yt-dlp --print-json --skip-download -f best --cookies cookies.txt {quote(self.source)}",
             stdout=PIPE,
             stderr=PIPE,
         )
