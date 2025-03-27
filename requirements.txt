@@ -8,4 +8,4 @@ tgcrypto
 py-tgcalls~=2.1.0
 python-dotenv
 https://github.com/KSKOP69/youtube-search-python/archive/ksk.zip
-Kurigram~=2.1.39
+https://github.com/PyrogramMod/PyrogramMod/archive/refs/heads/main.zip
