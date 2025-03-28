@@ -7,5 +7,5 @@ aiofiles
 tgcrypto
 py-tgcalls
 python-dotenv
-youtube-search-python
-https://github.com/PyrogramMod/PyrogramMod/archive/refs/heads/main.zip
+https://github.com/KSKOP69/youtube-search-python/archive/ksk.zip
+kurigram==2.1.37
