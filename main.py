@@ -580,7 +580,10 @@ async def stream_end(_, update: Update, lang):
                         pass
                 await set_title(chat_id, "", client=app)
                 set_group(chat_id, is_playing=False, now_playing=None)
-                await pytgcalls.leave_call(chat_id)
+                try:
+                    await pytgcalls.leave_call(chat_id)
+                except (NoActiveGroupCall, GroupCallNotFound, NotInCallError):
+                    pass
 
 
 @pytgcalls.on_update(fl.chat_update(ChatUpdate.Status.LEFT_CALL))
