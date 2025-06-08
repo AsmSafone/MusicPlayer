@@ -25,7 +25,7 @@ from pyrogram.types import Message
 from pytgcalls import filters as fl
 from pyrogram import Client, filters
 from pytgcalls.types import Update, ChatUpdate
-from pytgcalls.types.stream import StreamAudioEnded, StreamVideoEnded
+from pytgcalls.types.stream import StreamEnded
 from core.decorators import language, register, only_admins, handle_error
 from pytgcalls.exceptions import (
     NotInCallError, GroupCallNotFound, NoActiveGroupCall)
@@ -557,7 +557,7 @@ async def update_restart(_, message: Message, lang):
 @language
 @handle_error
 async def stream_end(_, update: Update, lang):
-    if isinstance(update, StreamAudioEnded) or isinstance(update, StreamVideoEnded):
+    if isinstance(update, StreamEnded.Type.AUDIO) or isinstance(update, StreamEnded.Type.VIDEO):
         chat_id = update.chat_id
         group = get_group(chat_id)
         if group["loop"]:
