@@ -9,3 +9,4 @@ py-tgcalls
 python-dotenv
 youtube-search-python
 https://github.com/PyrogramMod/PyrogramMod/archive/refs/heads/main.zip
+flask
