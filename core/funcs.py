@@ -21,13 +21,13 @@ import re
 import math
 import time
 import random
+import yt_dlp
 import aiohttp
 import asyncio
 import aiofiles
 from config import config
 from core.song import Song
 from pyrogram import enums
-from pytube import Playlist
 from spotipy import Spotify
 from core.groups import get_group
 from pyrogram.types import Message
@@ -297,11 +297,21 @@ async def special_to_normal(ctitle):
 
 
 async def get_youtube_playlist(pl_url: str, message: Message) -> AsyncIterator[Song]:
-    pl = Playlist(pl_url)
-    for i in range(len(list(pl))):
-        song = Song(pl[i], message)
-        song.title = pl.videos[i].title
-        yield song
+    ydl_opts = {
+        'extract_flat': True,
+        'skip_download': True,
+        'quiet': True,
+        'ignoreerrors': True,
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(pl_url, download=False)
+        
+    if info and 'entries' in info:
+        for entry in info['entries']:
+            if entry and entry.get('url'):
+                song = Song(entry['url'], message)
+                song.title = entry.get('title', 'Unknown Title')
+                yield song
 
 
 async def get_spotify_playlist(pl_url: str, message: Message) -> AsyncIterator[Song]:

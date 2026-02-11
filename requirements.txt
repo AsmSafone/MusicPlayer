@@ -1,5 +1,4 @@
 yt-dlp==2026.1.31
-pytube==15.0.0
 pillow==12.1.0
 aiohttp==3.13.3
 aiofiles==25.1.0
